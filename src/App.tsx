@@ -1,19 +1,17 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Drafts from "@/components/Pages/Drafts";
+import { MantineProvider } from "@mantine/core";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { AppRoutes } from "./routes";
+import "@mantine/core/styles.css";
 
 export default function App() {
     return (
-        <div className="container mx-auto max-w-5xl">
-            <Tabs defaultValue="drafts">
-                <TabsList>
-                    <TabsTrigger value="mail">Mail</TabsTrigger>
-                    <TabsTrigger value="drafts">Drafts</TabsTrigger>
-                </TabsList>
-                <TabsContent value="mail"></TabsContent>
-                <TabsContent value="drafts">
-                    <Drafts />
-                </TabsContent>
-            </Tabs>
-        </div>
+        <MantineProvider>
+            <BrowserRouter>
+                <AuthProvider>
+                    <AppRoutes />
+                </AuthProvider>
+            </BrowserRouter>
+        </MantineProvider>
     );
 }
