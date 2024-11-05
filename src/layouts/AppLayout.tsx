@@ -1,8 +1,9 @@
-import { AppShell, Burger, Group } from "@mantine/core";
+import { AppShell, Burger, Flex, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconLogout } from "@tabler/icons-react";
+import { IconLayoutDashboard, IconLogout, IconMail } from "@tabler/icons-react";
 
 import { useAuth } from "../context/AuthContext";
+import NavbarItem from "@/components/ui/NavbarItem";
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
     children,
@@ -36,7 +37,18 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                 </Group>
             </AppShell.Header>
             <AppShell.Navbar p="md">
-                {/* Add your navigation items here */}
+                <Flex direction="column" gap={12}>
+                    <NavbarItem
+                        link="/dashboard"
+                        icon={<IconLayoutDashboard />}
+                        text="Dashboard"
+                    />
+                    <NavbarItem
+                        link="/inbox"
+                        icon={<IconMail />}
+                        text="Inbox"
+                    />
+                </Flex>
             </AppShell.Navbar>
             <AppShell.Main>{children}</AppShell.Main>
         </AppShell>
