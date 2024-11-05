@@ -43,7 +43,7 @@ export function DashboardPage() {
         <Container size="lg">
             <Title order={2}>Dashboard</Title>
 
-            <Table>
+            <Table mt={16}>
                 <Table.Thead>
                     <Table.Tr>
                         <Table.Th></Table.Th>

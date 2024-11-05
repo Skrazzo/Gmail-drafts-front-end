@@ -1,6 +1,6 @@
 import EmailListItem from "@/components/ui/EmailListItem";
 import { errorMessage } from "@/global";
-import { Flex, Skeleton, Table } from "@mantine/core";
+import { Flex, Skeleton, Table, Title } from "@mantine/core";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { EmailList } from "@/types/EmailList";
@@ -22,6 +22,10 @@ export default function Inbox() {
 
     return (
         <>
+            <Title order={2} mb={16}>
+                Inbox
+            </Title>
+
             {list === null && (
                 <Flex direction={"column"} gap={8}>
                     {new Array(6).fill(null).map((_, i) => (

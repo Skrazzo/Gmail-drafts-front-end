@@ -2,9 +2,9 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../pages/Login";
-import { DashboardPage } from "@/pages/Dasboard";
+import { DashboardPage } from "@/pages/Dashoard";
 import { LoadingOverlay } from "@mantine/core";
-import Inbox from "@/pages/inbox";
+import Inbox from "@/pages/Inbox";
 
 export const AppRoutes = () => {
     const { user, loading } = useAuth();
