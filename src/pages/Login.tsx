@@ -1,10 +1,11 @@
 // src/pages/Login.tsx
+import { API_URL } from "@/global";
 import { Paper, Title, Container, Button, Text, Stack } from "@mantine/core";
 import { IconBrandGoogle } from "@tabler/icons-react";
 
 export function LoginPage() {
     const handleGoogleLogin = () => {
-        window.location.href = "http://localhost:3000/auth/google";
+        window.location.href = API_URL + "/auth/google";
     };
 
     return (

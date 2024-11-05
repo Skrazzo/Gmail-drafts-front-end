@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "../types/auth";
+import { API_URL } from "@/global";
 
 interface AuthContextType {
     user: User | null;
@@ -18,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const checkAuth = async () => {
         try {
-            const response = await fetch("http://localhost:3000/auth/user", {
+            const response = await fetch(API_URL + "/auth/user", {
                 credentials: "include",
             });
             if (response.ok) {
@@ -37,10 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const logout = async () => {
         try {
-            await fetch("http://localhost:3000/auth/logout", {
-                credentials: "include",
-            });
-            setUser(null);
+            window.location.href = API_URL + "/auth/logout";
         } catch (error) {
             console.error("Logout failed:", error);
         }

@@ -2,7 +2,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../pages/Login";
-// import { DashboardPage } from "../pages/Dashboard";
+import { DashboardPage } from "@/pages/Dasboard";
 import { LoadingOverlay } from "@mantine/core";
 
 export const AppRoutes = () => {

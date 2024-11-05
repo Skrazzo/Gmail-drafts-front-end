@@ -24,7 +24,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                 <Group h="100%" px="md" justify="space-between">
                     <Group>
                         <Burger opened={opened} onClick={toggle} size="sm" />
-                        <h3>My App</h3>
+                        <h3>Gmail app</h3>
                     </Group>
                     <Group>
                         <span>{user?.name}</span>
