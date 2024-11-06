@@ -35,9 +35,9 @@ export function DashboardPage() {
             });
     }, []);
 
-    useEffect(() => {
-        console.log(info);
-    }, [info]);
+    // useEffect(() => {
+    //     console.log(info);
+    // }, [info]);
 
     return (
         <Container size="lg">

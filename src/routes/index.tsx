@@ -4,7 +4,8 @@ import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../pages/Login";
 import { DashboardPage } from "@/pages/Dashoard";
 import { LoadingOverlay } from "@mantine/core";
-import Inbox from "@/pages/Inbox";
+import Inbox from "@/pages/inbox";
+import Sent from "@/pages/Sent";
 
 export const AppRoutes = () => {
     const { user, loading } = useAuth();
@@ -35,6 +36,16 @@ export const AppRoutes = () => {
                     <ProtectedRoute>
                         <AppLayout>
                             <Inbox />
+                        </AppLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/sent"
+                element={
+                    <ProtectedRoute>
+                        <AppLayout>
+                            <Sent />
                         </AppLayout>
                     </ProtectedRoute>
                 }

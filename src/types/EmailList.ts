@@ -1,5 +1,5 @@
-export type EmailList = {
-    messages: Object[];
+export type EmailListData = {
+    messages: EmailListItem[];
     nextPageToken: string | null;
     resultSizeEstimate: number;
 };
@@ -22,4 +22,14 @@ export type EmailListItem = {
             headers: EmailHeaderInfo[];
         };
     };
+    [key: string]: any;
 };
+
+export type EmailHeadersToGet = {
+    [0]: "from" | "to";
+    [1]: "subject";
+    [2]: "date";
+    length: 3;
+};
+
+export type EmailListTypes = "inbox" | "sent";

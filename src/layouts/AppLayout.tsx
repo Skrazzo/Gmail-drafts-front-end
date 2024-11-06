@@ -1,6 +1,11 @@
 import { AppShell, Burger, Flex, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconLayoutDashboard, IconLogout, IconMail } from "@tabler/icons-react";
+import {
+    IconLayoutDashboard,
+    IconLogout,
+    IconMail,
+    IconSend,
+} from "@tabler/icons-react";
 
 import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
@@ -47,6 +52,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                         link="/inbox"
                         icon={<IconMail />}
                         text="Inbox"
+                    />
+                    <NavbarItem
+                        link="/sent"
+                        icon={<IconSend />}
+                        text="Sent emails"
                     />
                 </Flex>
             </AppShell.Navbar>
