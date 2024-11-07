@@ -17,7 +17,8 @@ export function formatEmailListDate(date: string | null): string {
     let momentDate = moment(date);
 
     // Check if its today
-    if (momentDate.diff(moment(), "days") < 1) {
+    console.log(momentDate.format("H:mm"));
+    if (momentDate.diff(moment(), "days") === 0) {
         return momentDate.format("H:mm");
     }
     return momentDate.format("D MMM");
