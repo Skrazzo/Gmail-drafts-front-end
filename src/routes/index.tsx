@@ -4,8 +4,9 @@ import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../pages/Login";
 import { DashboardPage } from "@/pages/Dashoard";
 import { LoadingOverlay } from "@mantine/core";
-import Inbox from "@/pages/inbox";
+import Inbox from "@/pages/Inbox";
 import Sent from "@/pages/Sent";
+import Emails from "@/pages/Emails";
 
 export const AppRoutes = () => {
     const { user, loading } = useAuth();
@@ -18,19 +19,20 @@ export const AppRoutes = () => {
         <Routes>
             <Route
                 path="/login"
-                element={!user ? <LoginPage /> : <Navigate to="/dashboard" />}
+                element={!user ? <LoginPage /> : <Navigate to="/emails" />}
             />
             <Route
-                path="/dashboard"
+                path="/emails"
                 element={
                     <ProtectedRoute>
                         <AppLayout>
-                            <DashboardPage />
+                            {/* <DashboardPage /> */}
+                            <Emails />
                         </AppLayout>
                     </ProtectedRoute>
                 }
             />
-            <Route
+            {/* <Route
                 path="/inbox"
                 element={
                     <ProtectedRoute>
@@ -39,8 +41,8 @@ export const AppRoutes = () => {
                         </AppLayout>
                     </ProtectedRoute>
                 }
-            />
-            <Route
+            /> */}
+            {/* <Route
                 path="/sent"
                 element={
                     <ProtectedRoute>
@@ -49,7 +51,7 @@ export const AppRoutes = () => {
                         </AppLayout>
                     </ProtectedRoute>
                 }
-            />
+            /> */}
             <Route
                 path="/"
                 element={<Navigate to={user ? "/dashboard" : "/login"} />}

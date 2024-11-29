@@ -4,7 +4,8 @@ import {
     IconLayoutDashboard,
     IconLogout,
     IconMail,
-    IconSend,
+    // IconMail,
+    // IconSend,
 } from "@tabler/icons-react";
 
 import { useAuth } from "../context/AuthContext";
@@ -43,12 +44,17 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
             </AppShell.Header>
             <AppShell.Navbar p="md">
                 <Flex direction="column" gap={12}>
-                    <NavbarItem
+                    {/* <NavbarItem
                         link="/dashboard"
                         icon={<IconLayoutDashboard />}
                         text="Dashboard"
+                    /> */}
+                    <NavbarItem 
+                        link="/emails"
+                        icon={<IconMail />}
+                        text="Emails"
                     />
-                    <NavbarItem
+                    {/* <NavbarItem
                         link="/inbox"
                         icon={<IconMail />}
                         text="Inbox"
@@ -57,7 +63,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                         link="/sent"
                         icon={<IconSend />}
                         text="Sent emails"
-                    />
+                    /> */}
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main>{children}</AppShell.Main>
