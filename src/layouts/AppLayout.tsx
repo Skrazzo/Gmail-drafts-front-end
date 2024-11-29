@@ -1,60 +1,63 @@
 import { AppShell, Burger, Flex, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-    IconLayoutDashboard,
-    IconLogout,
-    IconMail,
-    // IconMail,
-    // IconSend,
+	IconLayoutDashboard,
+	IconLogout,
+	IconMail,
+	// IconMail,
+	// IconSend,
 } from "@tabler/icons-react";
 
 import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
-    children,
+	children,
 }) => {
-    const [opened, { toggle }] = useDisclosure();
-    const { user, logout } = useAuth();
+	const [opened, { toggle }] = useDisclosure();
+	const { user, logout } = useAuth();
 
-    return (
-        <AppShell
-            header={{ height: 60 }}
-            navbar={{
-                width: 300,
-                breakpoint: "sm",
-                collapsed: { mobile: !opened },
-            }}
-            padding="md"
-        >
-            <AppShell.Header>
-                <Group h="100%" px="md" justify="space-between">
-                    <Group>
-                        <Burger opened={opened} onClick={toggle} size="sm" />
-                        <h3>Gmail app</h3>
-                    </Group>
-                    <Group>
-                        <span>{user?.name}</span>
-                        <IconLogout
-                            style={{ cursor: "pointer" }}
-                            onClick={logout}
-                        />
-                    </Group>
-                </Group>
-            </AppShell.Header>
-            <AppShell.Navbar p="md">
-                <Flex direction="column" gap={12}>
-                    {/* <NavbarItem
+	return (
+		<AppShell
+			header={{ height: 60 }}
+			navbar={{
+				width: 300,
+				breakpoint: "sm",
+				collapsed: { mobile: !opened },
+			}}
+			padding="md"
+		>
+			<AppShell.Header>
+				<Group h="100%" px="md" justify="space-between">
+					<Group>
+						<Burger opened={opened} onClick={toggle} size="sm" />
+						<h3>Gmail app</h3>
+					</Group>
+					<Group>
+						<span>{user?.name}</span>
+						<IconLogout
+							style={{ cursor: "pointer" }}
+							onClick={logout}
+						/>
+					</Group>
+				</Group>
+			</AppShell.Header>
+			<AppShell.Navbar p="md">
+				<Flex direction="column" gap={12}>
+					{
+						/* <NavbarItem
                         link="/dashboard"
                         icon={<IconLayoutDashboard />}
                         text="Dashboard"
-                    /> */}
-                    <NavbarItem 
-                        link="/emails"
-                        icon={<IconMail />}
-                        text="Emails"
-                    />
-                    {/* <NavbarItem
+                    /> */
+					}
+					<NavbarItem
+						link="/emails"
+						icon={<IconMail />}
+						text="Emails"
+					/>
+					{
+						/* <NavbarItem
                         link="/inbox"
                         icon={<IconMail />}
                         text="Inbox"
@@ -63,10 +66,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
                         link="/sent"
                         icon={<IconSend />}
                         text="Sent emails"
-                    /> */}
-                </Flex>
-            </AppShell.Navbar>
-            <AppShell.Main>{children}</AppShell.Main>
-        </AppShell>
-    );
+                    /> */
+					}
+				</Flex>
+			</AppShell.Navbar>
+			<AppShell.Main>{children}</AppShell.Main>
+		</AppShell>
+	);
 };

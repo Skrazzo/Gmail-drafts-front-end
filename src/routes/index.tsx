@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../pages/Login";
@@ -9,30 +9,31 @@ import Sent from "@/pages/Sent";
 import Emails from "@/pages/Emails";
 
 export const AppRoutes = () => {
-    const { user, loading } = useAuth();
+	const { user, loading } = useAuth();
 
-    if (loading) {
-        return <LoadingOverlay visible={true} />;
-    }
+	if (loading) {
+		return <LoadingOverlay visible={true} />;
+	}
 
-    return (
-        <Routes>
-            <Route
-                path="/login"
-                element={!user ? <LoginPage /> : <Navigate to="/emails" />}
-            />
-            <Route
-                path="/emails"
-                element={
-                    <ProtectedRoute>
-                        <AppLayout>
-                            {/* <DashboardPage /> */}
-                            <Emails />
-                        </AppLayout>
-                    </ProtectedRoute>
-                }
-            />
-            {/* <Route
+	return (
+		<Routes>
+			<Route
+				path="/login"
+				element={!user ? <LoginPage /> : <Navigate to="/emails" />}
+			/>
+			<Route
+				path="/emails"
+				element={
+					<ProtectedRoute>
+						<AppLayout>
+							{/* <DashboardPage /> */}
+							<Emails />
+						</AppLayout>
+					</ProtectedRoute>
+				}
+			/>
+			{
+				/* <Route
                 path="/inbox"
                 element={
                     <ProtectedRoute>
@@ -41,8 +42,10 @@ export const AppRoutes = () => {
                         </AppLayout>
                     </ProtectedRoute>
                 }
-            /> */}
-            {/* <Route
+            /> */
+			}
+			{
+				/* <Route
                 path="/sent"
                 element={
                     <ProtectedRoute>
@@ -51,24 +54,25 @@ export const AppRoutes = () => {
                         </AppLayout>
                     </ProtectedRoute>
                 }
-            /> */}
-            <Route
-                path="/"
-                element={<Navigate to={user ? "/dashboard" : "/login"} />}
-            />
-        </Routes>
-    );
+            /> */
+			}
+			<Route
+				path="/"
+				element={<Navigate to={user ? "/dashboard" : "/login"} />}
+			/>
+		</Routes>
+	);
 };
 
 // ProtectedRoute component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-    children,
+	children,
 }) => {
-    const { user } = useAuth();
+	const { user } = useAuth();
 
-    if (!user) {
-        return <Navigate to="/login" />;
-    }
+	if (!user) {
+		return <Navigate to="/login" />;
+	}
 
-    return <>{children}</>;
+	return <>{children}</>;
 };

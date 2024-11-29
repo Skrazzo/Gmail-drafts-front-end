@@ -5,13 +5,13 @@ import { AppRoutes } from "./routes";
 import "@mantine/core/styles.css";
 
 export default function App() {
-    return (
-        <MantineProvider>
-            <BrowserRouter>
-                <AuthProvider>
-                    <AppRoutes />
-                </AuthProvider>
-            </BrowserRouter>
-        </MantineProvider>
-    );
+	return (
+		<MantineProvider>
+			<BrowserRouter>
+				<AuthProvider>
+					<AppRoutes />
+				</AuthProvider>
+			</BrowserRouter>
+		</MantineProvider>
+	);
 }
