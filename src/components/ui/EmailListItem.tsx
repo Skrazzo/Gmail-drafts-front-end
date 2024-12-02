@@ -1,7 +1,7 @@
 import { formatEmailListDate, getSenderName } from "@/functions/emailData";
 import { getHeaderInfo } from "@/functions/getHeaderInfo";
 import useOnScreen from "@/hooks/useOnScreen";
-import { EmailHeadersToGet, EmailListItem as EmailListItemType } from "@/types/EmailList";
+import { EmailHeadersToGet, EmailListItem as EmailListItemType } from "@/types/Emails";
 import { Table } from "@mantine/core";
 import { useEffect, useRef } from "react";
 

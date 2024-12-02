@@ -3,15 +3,20 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Input, Table, Title } from "@mantine/core";
 import classNames from "classnames";
-import useWindowSize from "@/hooks/useWindowSize";
+import { useNavigate } from "react-router-dom";
 
 export default function Emails() {
 	const [list, setList] = useState<EmailSearch[]>([]);
 	const firstRender = useRef(true);
+	const navigate = useNavigate();
 
 	const fetchList = async () => {
 		const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery } });
 		setList(tmp.data);
+	};
+
+	const navigateToEmail = (id: number) => {
+		navigate("/email/" + id);
 	};
 
 	useEffect(() => {
@@ -49,7 +54,7 @@ export default function Emails() {
 				</Table.Tr>
 
 				{list.map((item, idx) => (
-					<Table.Tr key={idx}>
+					<Table.Tr key={idx} onClick={() => navigateToEmail(item.id)}>
 						<Table.Td
 							className={classNames({
 								"text-gray-300 italic": item.person_name === null ? true : false,

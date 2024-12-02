@@ -35,7 +35,31 @@ export type EmailHeadersToGet = {
 export type EmailListTypes = "inbox" | "sent";
 
 export interface EmailSearch {
+	id: number;
 	email: string;
 	person_name: string | null;
 	company_name: string | null;
+}
+
+export interface EmailMetadata {
+	"id": number;
+	"company_id": number;
+	"company_name": string | null;
+	"company_type": string;
+	"email": string;
+	"person_name": string | null;
+	"service": string;
+	"sent_email": 0 | 1;
+	"recieved_email": 0 | 1;
+	"country": string;
+	"phone_number": string | null;
+	"last_comment": string | null;
+	"met_in_person": string | null;
+	"interest": number | null;
+	"last_received_date": string | null;
+	"last_received_subject": string | null;
+	"last_received_snippet": string | null;
+	"last_sent_date": string | null;
+	"last_sent_subject": string | null;
+	"last_sent_snippet": string | null;
 }

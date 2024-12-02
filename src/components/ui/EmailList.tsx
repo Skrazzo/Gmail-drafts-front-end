@@ -1,7 +1,7 @@
 import { errorMessage } from "@/global";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { EmailHeadersToGet, EmailListData, EmailListTypes } from "@/types/EmailList";
+import { EmailHeadersToGet, EmailListData, EmailListTypes } from "@/types/Emails";
 
 import { Center, Flex, Loader, Skeleton, Table, Title } from "@mantine/core";
 import EmailListItem from "@/components/ui/EmailListItem";

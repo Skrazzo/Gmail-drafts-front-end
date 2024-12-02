@@ -1,4 +1,4 @@
-import { EmailHeaderInfo } from "@/types/EmailList";
+import { EmailHeaderInfo } from "@/types/Emails";
 
 /**
  * Find an email header and return its value.

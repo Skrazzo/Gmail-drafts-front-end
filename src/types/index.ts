@@ -1,3 +1,4 @@
-export * from "./EmailList";
+export * from "./Emails";
 export * from "./auth";
 export * from "./dashboard";
+export * from "./Api";
