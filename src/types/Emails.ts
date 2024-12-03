@@ -55,7 +55,7 @@ export interface EmailMetadata {
 	"phone_number": string | null;
 	"last_comment": string | null;
 	"met_in_person": string | null;
-	"interest": number | null;
+	"interest": number | null | "";
 	"last_received_date": string | null;
 	"last_received_subject": string | null;
 	"last_received_snippet": string | null;

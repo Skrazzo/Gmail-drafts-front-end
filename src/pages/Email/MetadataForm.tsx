@@ -26,7 +26,9 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 		initialValues: initialData,
 		validate: {
 			interest: (value) =>
-				value === null || (value >= 0 && value <= 10) ? null : "Interest must be between 0 and 10",
+				value === null || value === "" || (value >= 0 && value <= 10)
+					? null
+					: "Interest must be between 0 and 10",
 		},
 	});
 
