@@ -17,15 +17,16 @@ import { EmailMetadata } from "@/types";
 interface EmailFormProps {
 	initialData: EmailMetadata;
 	onSubmit: (values: EmailMetadata) => void;
+	isReadOnly: (column: string) => boolean;
+	loading: boolean;
 }
 
-export function EmailForm({ initialData, onSubmit }: EmailFormProps) {
+export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailFormProps) {
 	const form = useForm<EmailMetadata>({
 		initialValues: initialData,
 		validate: {
-			email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
 			interest: (value) =>
-				value === null || (value >= 0 && value <= 100) ? null : "Interest must be between 0 and 100",
+				value === null || (value >= 0 && value <= 10) ? null : "Interest must be between 0 and 10",
 		},
 	});
 
@@ -38,44 +39,47 @@ export function EmailForm({ initialData, onSubmit }: EmailFormProps) {
 						<TextInput
 							label="Company Name"
 							{...form.getInputProps("company_name")}
-							disabled
+							disabled={isReadOnly("company_name")}
 						/>
 
 						<TextInput
 							label="Company type"
 							{...form.getInputProps("company_type")}
-							disabled
+							disabled={isReadOnly("company_type")}
 						/>
 
 						<TextInput
 							label="Service"
 							{...form.getInputProps("service")}
-							disabled
+							disabled={isReadOnly("service")}
 						/>
 						{/* Contact Information */}
 
 						<TextInput
 							label="Email"
 							{...form.getInputProps("email")}
-							disabled
+							disabled={isReadOnly("email")}
 						/>
 
 						<TextInput
 							label="Person Name"
 							placeholder="Enter person name"
 							{...form.getInputProps("person_name")}
+							disabled={isReadOnly("person_name")}
 						/>
 
 						<TextInput
 							label="Country"
 							placeholder="Enter country"
 							{...form.getInputProps("country")}
+							disabled={isReadOnly("country")}
 						/>
 
 						<TextInput
 							label="Phone Number"
 							placeholder="Enter phone number"
 							{...form.getInputProps("phone_number")}
+							disabled={isReadOnly("phone_number")}
 						/>
 
 						{/* Additional Information */}
@@ -84,10 +88,11 @@ export function EmailForm({ initialData, onSubmit }: EmailFormProps) {
 							label="Met in Person"
 							placeholder="Select option"
 							data={[
-								{ value: "yes", label: "Yes" },
-								{ value: "no", label: "No" },
+								{ value: "Yes", label: "Yes" },
+								{ value: "No", label: "No" },
 							]}
 							{...form.getInputProps("met_in_person")}
+							disabled={isReadOnly("met_in_person")}
 							clearable
 						/>
 
@@ -97,6 +102,7 @@ export function EmailForm({ initialData, onSubmit }: EmailFormProps) {
 							min={0}
 							max={10}
 							{...form.getInputProps("interest")}
+							disabled={isReadOnly("interest")}
 						/>
 					</SimpleGrid>
 
@@ -105,6 +111,7 @@ export function EmailForm({ initialData, onSubmit }: EmailFormProps) {
 						placeholder="Enter comment"
 						minRows={3}
 						{...form.getInputProps("last_comment")}
+						disabled={isReadOnly("last_comment")}
 					/>
 
 					{/* Email Status - Read Only */}
@@ -150,7 +157,7 @@ export function EmailForm({ initialData, onSubmit }: EmailFormProps) {
 					</Paper>
 
 					<Group>
-						<Button type="submit" c="blue">
+						<Button type="submit" loading={loading}>
 							Save Changes
 						</Button>
 					</Group>
