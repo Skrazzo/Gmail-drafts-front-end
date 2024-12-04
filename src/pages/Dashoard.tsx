@@ -1,6 +1,5 @@
 // src/pages/Dashboard.tsx
-import { Container, Grid, Skeleton, Table, Text, Title } from "@mantine/core";
-import { useAuth } from "../context/AuthContext";
+import { Container, Skeleton, Table, Title } from "@mantine/core";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { errorMessage } from "@/global";
@@ -19,7 +18,7 @@ const TableRowSkelets = () => {
 };
 
 export function DashboardPage() {
-	const { user } = useAuth();
+	// const { user } = useAuth();
 
 	const [info, setInfo] = useState<EmailInfo | null>(null);
 

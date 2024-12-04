@@ -2,10 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../pages/Login";
-import { DashboardPage } from "@/pages/Dashoard";
 import { LoadingOverlay } from "@mantine/core";
-import Inbox from "@/pages/Inbox";
-import Sent from "@/pages/Sent";
 import Emails from "@/pages/Emails";
 import EditEmail from "@/pages/Email/EditEmailPage";
 

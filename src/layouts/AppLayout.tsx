@@ -1,11 +1,8 @@
 import { AppShell, Burger, Flex, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-	IconLayoutDashboard,
 	IconLogout,
-	IconMail,
-	// IconMail,
-	// IconSend,
+	IconMail
 } from "@tabler/icons-react";
 
 import { useAuth } from "../context/AuthContext";

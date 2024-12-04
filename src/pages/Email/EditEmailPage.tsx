@@ -1,10 +1,9 @@
 import { EmailMetadata } from "@/types";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EmailForm } from "./MetadataForm";
 import EditCompany from "./EditCompany";
-import { notifications } from "@mantine/notifications";
 
 export default function EditEmail() {
 	const { id } = useParams();

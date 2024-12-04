@@ -1,6 +1,6 @@
 import { ModalForm } from "@/components/ui/ModalForm";
 import { CompanyExists, ListCompanies } from "@/types";
-import { Button, ComboboxData, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
+import { Button, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconLink, IconPencil, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
