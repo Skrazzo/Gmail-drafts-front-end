@@ -5,6 +5,7 @@ import { LoginPage } from "../pages/Login";
 import { LoadingOverlay } from "@mantine/core";
 import Emails from "@/pages/Emails";
 import EditEmail from "@/pages/Email/EditEmailPage";
+import CreateDrafts from "@/pages/CreateDrafts";
 
 export const AppRoutes = () => {
 	const { user, loading } = useAuth();
@@ -37,6 +38,28 @@ export const AppRoutes = () => {
 					<ProtectedRoute>
 						<AppLayout>
 							<EditEmail />
+						</AppLayout>
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/drafts/create/"
+				element={
+					<ProtectedRoute>
+						<AppLayout>
+							<CreateDrafts />
+						</AppLayout>
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/drafts/queue/"
+				element={
+					<ProtectedRoute>
+						<AppLayout>
+							<></>
 						</AppLayout>
 					</ProtectedRoute>
 				}

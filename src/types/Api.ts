@@ -3,6 +3,18 @@ interface ApiResponse {
 	error?: any;
 }
 
+interface SuccessResponse<T> {
+	success: true;
+	data: T;
+}
+
+interface ErrorResponse {
+	success: false;
+	error: any;
+}
+
+export type AxiosResponse<T> = SuccessResponse<T> | ErrorResponse;
+
 export interface CompanyExists extends ApiResponse {
 	data: boolean;
 }
