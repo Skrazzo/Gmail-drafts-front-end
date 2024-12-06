@@ -18,7 +18,14 @@ export default function Filter(props: FilterProps) {
 		let value = emailListRef.current.value;
 		if (value.trim() === "") return;
 
-		const emails: string[] = value.split("\n").map((email) => email.trim());
+		// Check email with regex
+		const emails: string[] = value.split("\n").filter((email) => {
+			const tmp = email.trim();
+			if (/^\S+@\S+$/i.test(tmp)) {
+				return tmp;
+			}
+		});
+
 		if (emails.length === 0) return;
 
 		// TODO: add email check with regex
