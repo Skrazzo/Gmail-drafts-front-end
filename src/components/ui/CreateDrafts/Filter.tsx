@@ -1,11 +1,13 @@
-import { AxiosResponse } from "@/types";
+import { AxiosResponse, DraftForm } from "@/types";
 import { Button, Flex, Paper, Pill, Text, Textarea } from "@mantine/core";
+import { UseFormReturnType } from "@mantine/form";
 import axios from "axios";
 import { useRef, useState } from "react";
 
 interface FilterProps {
 	filteredEmails: string[];
-	setFiltered: (emails: string[]) => void;
+	// setFiltered: (emails: string[]) => void;
+	form: UseFormReturnType<DraftForm>;
 }
 
 export default function Filter(props: FilterProps) {
@@ -32,7 +34,8 @@ export default function Filter(props: FilterProps) {
 		setLoading(true);
 		const filtered = (await axios.get<AxiosResponse<string[]>>("/emails/filter", { params: { emails } })).data;
 		if (filtered.success) {
-			props.setFiltered(filtered.data);
+			// props.setFiltered(filtered.data);
+			props.form.setValues({ emails: filtered.data });
 			emailListRef.current.value = "";
 		} else {
 			alert("Error: " + filtered.error);
@@ -44,7 +47,14 @@ export default function Filter(props: FilterProps) {
 	return (
 		<Paper withBorder p="md">
 			<Text fw={700}>Select emails</Text>
-			<Textarea mt={8} ref={emailListRef} placeholder="Paste emails from excel" autosize maxRows={10} />
+			<Textarea
+				error={props.form.errors.emails}
+				mt={8}
+				ref={emailListRef}
+				placeholder="Paste emails from excel"
+				autosize
+				maxRows={10}
+			/>
 
 			<Button mt={8} onClick={onFilterHandler} loading={loading}>
 				Filter emails
@@ -55,7 +65,7 @@ export default function Filter(props: FilterProps) {
 					<>
 						<Text fw={700} mt={16}>Filtered emails</Text>
 						<Flex gap={8} mt={8}>
-							{props.filteredEmails.map((e) => <Pill>{e}</Pill>)}
+							{props.filteredEmails.map((e) => <Pill key={e}>{e}</Pill>)}
 						</Flex>
 					</>
 				)

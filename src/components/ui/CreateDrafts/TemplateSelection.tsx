@@ -87,7 +87,7 @@ export default function TemplateSelection(props: TemplateSelectionProps): ReactE
 
 			<Flex gap={8} mt={16}>
 				<Button loading={loading} onClick={loadPreview}>Load preview</Button>
-				<Button loading={loading} variant="light">Put drafts in queue</Button>
+				<Button loading={loading} onClick={props.onSubmit} variant="light">Put drafts in queue</Button>
 			</Flex>
 		</Paper>
 	);

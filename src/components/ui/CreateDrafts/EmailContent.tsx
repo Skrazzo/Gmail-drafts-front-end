@@ -24,7 +24,7 @@ export default function EmailContent(props: EmailContentProps): ReactElement {
 					{...props.form.getInputProps("subject")}
 				/>
 
-				<RichEditor initialValue={props.form.values.body} onChange={richChangeHandler} />
+				<RichEditor value={props.form.values.body} onChange={richChangeHandler} />
 				<FileSelect
 					value={props.form.values.attachments}
 					onChange={(files) => props.form.setValues({ attachments: files })}

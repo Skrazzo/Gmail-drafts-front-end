@@ -7,13 +7,14 @@ import TextAlign from "@tiptap/extension-text-align";
 import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import "@mantine/tiptap/styles.css";
+import { useEffect } from "react";
 
 interface RichTextEditorProps {
-	initialValue: string;
+	value: string;
 	onChange: (value: string) => void;
 }
 
-export default function RichEditor({ initialValue, onChange }: RichTextEditorProps) {
+export default function RichEditor({ value, onChange }: RichTextEditorProps) {
 	const editor = useEditor({
 		extensions: [
 			StarterKit,
@@ -24,7 +25,8 @@ export default function RichEditor({ initialValue, onChange }: RichTextEditorPro
 			Highlight,
 			TextAlign.configure({ types: ["heading", "paragraph"] }),
 		],
-		content: initialValue,
+
+		content: value,
 		onUpdate: ({ editor }) => {
 			onChange(editor.getHTML());
 		},
