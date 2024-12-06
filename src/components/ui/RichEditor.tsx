@@ -9,11 +9,11 @@ import SubScript from "@tiptap/extension-subscript";
 import "@mantine/tiptap/styles.css";
 
 interface RichTextEditorProps {
-	value: string;
+	initialValue: string;
 	onChange: (value: string) => void;
 }
 
-export default function RichEditor({ value, onChange }: RichTextEditorProps) {
+export default function RichEditor({ initialValue, onChange }: RichTextEditorProps) {
 	const editor = useEditor({
 		extensions: [
 			StarterKit,
@@ -24,14 +24,14 @@ export default function RichEditor({ value, onChange }: RichTextEditorProps) {
 			Highlight,
 			TextAlign.configure({ types: ["heading", "paragraph"] }),
 		],
-		content: value,
+		content: initialValue,
 		onUpdate: ({ editor }) => {
 			onChange(editor.getHTML());
 		},
 	});
 
 	return (
-		<MantineRichTextEditor editor={editor}>
+		<MantineRichTextEditor editor={editor} className="prose" style={{ maxWidth: "100%" }}>
 			<MantineRichTextEditor.Toolbar sticky stickyOffset={60}>
 				<MantineRichTextEditor.ControlsGroup>
 					<MantineRichTextEditor.Bold />
