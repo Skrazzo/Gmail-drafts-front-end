@@ -1,6 +1,6 @@
 import { AppShell, Burger, Flex, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconLogout, IconMail, IconWriting } from "@tabler/icons-react";
+import { IconHourglassEmpty, IconLogout, IconMail, IconWriting } from "@tabler/icons-react";
 
 import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
@@ -54,6 +54,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
 						link="/drafts/create"
 						icon={<IconWriting />}
 						text="Create drafts"
+					/>
+					<NavbarItem
+						link="/drafts/queued"
+						icon={<IconHourglassEmpty />}
+						text="Queued drafts"
 					/>
 					{
 						/* <NavbarItem

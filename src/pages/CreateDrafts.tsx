@@ -2,6 +2,7 @@ import EmailContent from "@/components/ui/CreateDrafts/EmailContent";
 import Filter from "@/components/ui/CreateDrafts/Filter";
 import TemplateSelection from "@/components/ui/CreateDrafts/TemplateSelection";
 import { AxiosResponse, DraftForm } from "@/types";
+import { Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import axios from "axios";
 import { useState } from "react";
@@ -24,16 +25,6 @@ export default function CreateDrafts() {
 			bodyTemplate: (e) => e === null ? "Please select template for email body" : null,
 		},
 	});
-
-	// useEffect(() => {
-	// 	const interval = setInterval(() => {
-	// 		console.log(form.getValues());
-	// 	}, 2000);
-
-	// 	return () => {
-	// 		clearInterval(interval);
-	// 	};
-	// }, []);
 
 	const submitHandler = async () => {
 		if (!form.isValid()) {
@@ -75,6 +66,7 @@ export default function CreateDrafts() {
 
 	return (
 		<>
+			<Title mb={16}>Create drafts</Title>
 			<Filter form={form} filteredEmails={form.values.emails} />
 			<EmailContent form={form} />
 			<TemplateSelection form={form} onSubmit={submitHandler} />
