@@ -5,7 +5,6 @@ import { AxiosResponse, DraftForm } from "@/types";
 import { Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import axios from "axios";
-import { useState } from "react";
 
 export default function CreateDrafts() {
 	const form = useForm<DraftForm>({

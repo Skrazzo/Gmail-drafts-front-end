@@ -7,6 +7,7 @@ import Emails from "@/pages/Emails";
 import EditEmail from "@/pages/Email/EditEmailPage";
 import CreateDrafts from "@/pages/CreateDrafts";
 import QueueDrafts from "@/pages/QueueDrafts";
+import SyncPage from "@/pages/SyncPage";
 
 export const AppRoutes = () => {
 	const { user, loading } = useAuth();
@@ -61,6 +62,17 @@ export const AppRoutes = () => {
 					<ProtectedRoute>
 						<AppLayout>
 							<QueueDrafts />
+						</AppLayout>
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path="/data/"
+				element={
+					<ProtectedRoute>
+						<AppLayout>
+							<SyncPage />
 						</AppLayout>
 					</ProtectedRoute>
 				}

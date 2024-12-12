@@ -21,30 +21,30 @@ export default function QueueDrafts() {
 	};
 
 	const createDraftHandler = async () => {
-		if(!nextInQueue) {
+		if (!nextInQueue) {
 			alert("Cannot create 0 drafts");
-			return ;
+			return;
 		}
 
 		// loading
 		setNext(null);
 
-		const data = (await axios.get<AxiosResponse<string[]>>('/drafts/create', { 
+		const data = (await axios.get<AxiosResponse<string[]>>("/drafts/create", {
 			params: {
-				amount: nextInQueue.length
-			}, 
-			timeout: 300000
+				amount: nextInQueue.length,
+			},
+			timeout: 300000,
 		})).data;
 
-		if(!data.success) {
-			alert('Server error: ' + data.error);
+		if (!data.success) {
+			alert("Server error: " + data.error);
 			console.error(data.error);
 			return;
 		}
 
 		alert("Successfully created drafts");
 		fetchData();
-	}
+	};
 
 	useEffect(() => {
 		fetchData();
@@ -56,7 +56,11 @@ export default function QueueDrafts() {
 			<QueueTable data={nextInQueue} />
 			{(!nextInQueue)
 				? <Button mt={16} loading>Loading</Button>
-				: <Button mt={16} disabled={nextInQueue.length === 0} onClick={createDraftHandler}>Create {nextInQueue.length} drafts</Button>}
+				: (
+					<Button mt={16} disabled={nextInQueue.length === 0} onClick={createDraftHandler}>
+						Create {nextInQueue.length} drafts
+					</Button>
+				)}
 		</>
 	);
 }

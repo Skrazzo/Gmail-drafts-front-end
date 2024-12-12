@@ -4,7 +4,6 @@ import { IconMailboxOff } from "@tabler/icons-react";
 import moment from "moment";
 
 export default function QueueTable({ data }: { data: QueuedDrafts[] | null | undefined }) {
-	
 	// Null
 	if (!data) {
 		return (
@@ -15,20 +14,20 @@ export default function QueueTable({ data }: { data: QueuedDrafts[] | null | und
 	}
 
 	// Result is empty
-	if(data.length === 0) {
+	if (data.length === 0) {
 		return (
 			<Paper withBorder>
 				<Center h={350}>
-					<Flex direction={'column'} gap={8} align={'center'}>
-						<IconMailboxOff size={96} strokeWidth={1.5} color="#4A72FF"/>
+					<Flex direction={"column"} gap={8} align={"center"}>
+						<IconMailboxOff size={96} strokeWidth={1.5} color="#4A72FF" />
 						<Title maw={250}>No drafts found</Title>
-						<Text c='dimmed' maw={300} className="text-center">If you want to send drafts, you need to create them first</Text>
+						<Text c="dimmed" maw={300} className="text-center">
+							If you want to send drafts, you need to create them first
+						</Text>
 					</Flex>
 				</Center>
-
 			</Paper>
-
-		)
+		);
 	}
 
 	const tableHeaders = (
