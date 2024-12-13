@@ -5,6 +5,7 @@ import { AxiosResponse, DraftForm } from "@/types";
 import { Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import axios from "axios";
+import { notifications } from "@mantine/notifications";
 
 export default function CreateDrafts() {
 	const form = useForm<DraftForm>({
@@ -56,7 +57,12 @@ export default function CreateDrafts() {
 
 			form.reset();
 			if (res.data.success) {
-				alert(res.data.data);
+				notifications.show({
+					withBorder: true,
+					radius: "md",
+					title: "Drafts created",
+					message: res.data.data,
+				});
 			}
 		} catch (error) {
 			console.error("Upload failed:", error);

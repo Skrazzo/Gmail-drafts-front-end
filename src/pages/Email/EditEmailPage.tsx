@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { EmailForm } from "./MetadataForm";
 import EditCompany from "./EditCompany";
+import { notifications } from "@mantine/notifications";
 
 export default function EditEmail() {
 	const { id } = useParams();
@@ -27,7 +28,6 @@ export default function EditEmail() {
 			"company_name",
 			"company_type",
 			"email",
-			"service",
 			"last_sent_date",
 			"last_sent_snippet",
 			"last_sent_subject",
@@ -57,15 +57,22 @@ export default function EditEmail() {
 		// update email info
 		axios.put(`/email_info`, null, { params: values }).then((res) => {
 			if (!res.data.success) {
-				alert("There was an error while saving email info: " + res.data.error);
+				notifications.show({
+					withBorder: true,
+					radius: "md",
+					title: "Server error",
+					color: "red",
+					message: res.data.error,
+				});
+				console.log(res.data.error);
 			} else {
 				// Show notification
-				// notifications.show({
-				// 	withBorder: true,
-				// 	radius: "md",
-				// 	title: "New email info saved",
-				// 	message: `Email info for ${values.email} was saved successfully`,
-				// });
+				notifications.show({
+					withBorder: true,
+					radius: "md",
+					title: "New email info saved",
+					message: `Email info for ${values.email} was saved successfully`,
+				});
 			}
 		}).finally(() => {
 			setLoading(false);

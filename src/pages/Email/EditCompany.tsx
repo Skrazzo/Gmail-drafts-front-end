@@ -171,27 +171,6 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 	return (
 		<Paper withBorder p={"md"} mb={16}>
 			<ModalForm
-				title="Edit company"
-				onConfirm={editHandler}
-				onClose={() => setEM(false)}
-				opened={editModal}
-				loading={loading}
-			>
-				<Stack gap={"xs"}>
-					<TextInput
-						placeholder="Company name"
-						key={editForm.key("name")}
-						{...editForm.getInputProps("name")}
-					/>
-					<TextInput
-						placeholder="Company type"
-						key={editForm.key("type")}
-						{...editForm.getInputProps("type")}
-					/>
-				</Stack>
-			</ModalForm>
-
-			<ModalForm
 				title="Create new company"
 				onConfirm={createHandler}
 				onClose={() => setCM(false)}
@@ -200,14 +179,39 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 			>
 				<Stack gap={"xs"}>
 					<TextInput
+						label={"Name"}
 						placeholder="New company name"
 						key={createForm.key("name")}
 						{...createForm.getInputProps("name")}
 					/>
 					<TextInput
+						label={"Type"}
 						placeholder="Company type"
 						key={createForm.key("type")}
 						{...createForm.getInputProps("type")}
+					/>
+				</Stack>
+			</ModalForm>
+
+			<ModalForm
+				title="Edit company"
+				onConfirm={editHandler}
+				onClose={() => setEM(false)}
+				opened={editModal}
+				loading={loading}
+			>
+				<Stack gap={"xs"}>
+					<TextInput
+						label={"Name"}
+						placeholder="Company name"
+						key={editForm.key("name")}
+						{...editForm.getInputProps("name")}
+					/>
+					<TextInput
+						label={"Type"}
+						placeholder="Company type"
+						key={editForm.key("type")}
+						{...editForm.getInputProps("type")}
 					/>
 				</Stack>
 			</ModalForm>

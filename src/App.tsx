@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { AppRoutes } from "./routes";
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 
 export default function App() {
 	return (

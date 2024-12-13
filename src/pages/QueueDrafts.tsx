@@ -3,6 +3,7 @@ import { AxiosResponse, QueuedDrafts } from "@/types";
 import { Button, Title } from "@mantine/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { notifications } from "@mantine/notifications";
 
 export default function QueueDrafts() {
 	const [nextInQueue, setNext] = useState<QueuedDrafts[] | null>(null);
@@ -22,7 +23,12 @@ export default function QueueDrafts() {
 
 	const createDraftHandler = async () => {
 		if (!nextInQueue) {
-			alert("Cannot create 0 drafts");
+			notifications.show({
+				withBorder: true,
+				radius: "md",
+				title: "Error",
+				message: `You cannot queue 0 drafts`,
+			});
 			return;
 		}
 
@@ -42,7 +48,13 @@ export default function QueueDrafts() {
 			return;
 		}
 
-		alert("Successfully created drafts");
+		notifications.show({
+			withBorder: true,
+			radius: "md",
+			title: "New drafts queued",
+			message: `Successfully created drafts`,
+		});
+
 		fetchData();
 	};
 

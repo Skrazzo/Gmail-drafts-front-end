@@ -13,6 +13,7 @@ import {
 	TextInput,
 } from "@mantine/core";
 import { EmailMetadata } from "@/types";
+import { countries } from "countries-list";
 
 interface EmailFormProps {
 	initialData: EmailMetadata;
@@ -32,6 +33,15 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 		},
 	});
 
+	const countriesSelectData = () => {
+		return Object.entries(countries).map(([code, country]) => {
+			return {
+				value: code,
+				label: country.name,
+			};
+		});
+	};
+
 	return (
 		<Paper p="md" withBorder>
 			<form onSubmit={form.onSubmit(onSubmit)}>
@@ -49,12 +59,6 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 							{...form.getInputProps("company_type")}
 							disabled={isReadOnly("company_type")}
 						/>
-
-						<TextInput
-							label="Service"
-							{...form.getInputProps("service")}
-							disabled={isReadOnly("service")}
-						/>
 						{/* Contact Information */}
 
 						<TextInput
@@ -70,9 +74,11 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 							disabled={isReadOnly("person_name")}
 						/>
 
-						<TextInput
+						<Select
 							label="Country"
-							placeholder="Enter country"
+							searchable
+							clearable
+							data={countriesSelectData()}
 							{...form.getInputProps("country")}
 							disabled={isReadOnly("country")}
 						/>

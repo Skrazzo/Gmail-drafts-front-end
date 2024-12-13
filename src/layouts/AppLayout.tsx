@@ -4,6 +4,7 @@ import { IconDatabase, IconHourglassEmpty, IconLogout, IconMail, IconWriting } f
 
 import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
+import { Notifications } from "@mantine/notifications";
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -79,7 +80,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
 					}
 				</Flex>
 			</AppShell.Navbar>
-			<AppShell.Main>{children}</AppShell.Main>
+			<AppShell.Main>
+				<Notifications />
+				{children}
+			</AppShell.Main>
 		</AppShell>
 	);
 };
