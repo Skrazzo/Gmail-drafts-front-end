@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { EmailMetadata } from "@/types";
 import { countries } from "countries-list";
+import TagCombobox from "@/components/ui/Tags/TagCombobox";
 
 interface EmailFormProps {
 	initialData: EmailMetadata;
@@ -33,6 +34,21 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 		},
 	});
 
+	const submitForm = () => {
+		if (!form.isValid()) {
+			form.validate();
+			return;
+		}
+
+		// Convert tags
+		const currentTags: number[] = form.values.tags || [];
+		if (currentTags.length === 0) {
+			form.setValues({ tags: [] });
+		}
+
+		onSubmit(form.getValues());
+	};
+
 	const countriesSelectData = () => {
 		return Object.entries(countries).map(([code, country]) => {
 			return {
@@ -44,28 +60,17 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 
 	return (
 		<Paper p="md" withBorder>
-			<form onSubmit={form.onSubmit(onSubmit)}>
+			<form onSubmit={(e) => e.preventDefault()}>
 				<Stack gap="md">
-					{/* Company Information */}
 					<SimpleGrid cols={2}>
-						<TextInput
-							label="Company Name"
-							{...form.getInputProps("company_name")}
-							disabled={isReadOnly("company_name")}
-						/>
-
-						<TextInput
-							label="Company type"
-							{...form.getInputProps("company_type")}
-							disabled={isReadOnly("company_type")}
-						/>
 						{/* Contact Information */}
-
 						<TextInput
 							label="Email"
 							{...form.getInputProps("email")}
 							disabled={isReadOnly("email")}
 						/>
+
+						<TagCombobox form={form} />
 
 						<TextInput
 							label="Person Name"
@@ -165,7 +170,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
 					</Paper>
 
 					<Group>
-						<Button type="submit" loading={loading}>
+						<Button type="submit" loading={loading} onClick={submitForm}>
 							Save Changes
 						</Button>
 					</Group>

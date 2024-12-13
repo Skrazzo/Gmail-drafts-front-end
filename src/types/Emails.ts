@@ -52,6 +52,7 @@ export interface EmailMetadata {
 	"sent_email": 0 | 1;
 	"recieved_email": 0 | 1;
 	"country": string;
+	"tags": number[];
 	"phone_number": string | null;
 	"last_comment": string | null;
 	"met_in_person": string | null;

@@ -235,7 +235,22 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 			</ModalForm>
 
 			<Text fw={700}>Edit Company</Text>
-			<SimpleGrid cols={3} mt={8}>
+
+			<SimpleGrid cols={2} mt={8}>
+				<TextInput
+					label="Company Name"
+					value={company_name}
+					disabled
+				/>
+
+				<TextInput
+					label="Company type"
+					value={company_type}
+					disabled
+				/>
+			</SimpleGrid>
+
+			<SimpleGrid cols={3} mt={16}>
 				<Button onClick={() => setCM(true)} variant="light" leftSection={<IconPlus />}>Create company</Button>
 				<Button onClick={() => setEM(true)} variant="light" leftSection={<IconPencil />}>
 					Edit company name

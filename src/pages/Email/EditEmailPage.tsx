@@ -41,6 +41,7 @@ export default function EditEmail() {
 	const handleSubmit = (values: EmailMetadata) => {
 		setLoading(true);
 		// Remove all null and empty values, company fields
+
 		Object.keys(values).forEach((key: string) => {
 			if (values[key] === null || values[key] === "") {
 				delete values[key];
@@ -62,7 +63,7 @@ export default function EditEmail() {
 					radius: "md",
 					title: "Server error",
 					color: "red",
-					message: res.data.error,
+					message: res.data.error.toString(),
 				});
 				console.log(res.data.error);
 			} else {
