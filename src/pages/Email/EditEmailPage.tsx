@@ -99,6 +99,7 @@ export default function EditEmail() {
 						email_id={Number(id)}
 						company_name={emailData.company_name || ""}
 						company_type={emailData.company_type || ""}
+						company_tags={emailData.company_tags || []}
 						company_id={emailData.company_id}
 					/>
 

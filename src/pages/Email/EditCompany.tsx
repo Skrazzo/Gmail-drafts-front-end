@@ -1,15 +1,12 @@
 import { ModalForm } from "@/components/ui/ModalForm";
-import { CompanyExists, ListCompanies } from "@/types";
+import TagCombobox from "@/components/ui/Tags/TagCombobox";
+import { AxiosResponse, CompanyExists, CompanyForm, ListCompanies, Tag } from "@/types";
 import { Button, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import { IconLink, IconPencil, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-interface CompanyForm {
-	name: string;
-	type: string;
-}
 
 interface LinkCompanyForm {
 	company_id: number | string;
@@ -20,19 +17,24 @@ interface EmailCompanyProps {
 	company_id: number;
 	company_name: string;
 	company_type: string;
+	company_tags: number[];
 	onUpdate: () => void;
 }
 
-export default function EditCompany({ onUpdate, email_id, company_id, company_name, company_type }: EmailCompanyProps) {
+export default function EditCompany(
+	{ onUpdate, email_id, company_id, company_name, company_tags, company_type }: EmailCompanyProps,
+) {
 	const [loading, setLoading] = useState<boolean>(false);
+	const [allTags, setAllTags] = useState<Tag[]>([]);
 
 	//#region edit company
 	const [editModal, setEM] = useState<boolean>(false);
 	const editForm = useForm<CompanyForm>({
-		mode: "uncontrolled",
+		// mode: "uncontrolled",
 		initialValues: {
 			name: company_name,
 			type: company_type,
+			tags: company_tags,
 		},
 
 		validate: {
@@ -70,10 +72,10 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 	//#region Create company
 	const [createModal, setCM] = useState<boolean>(false);
 	const createForm = useForm<CompanyForm>({
-		mode: "uncontrolled",
 		initialValues: {
 			name: "",
 			type: "",
+			tags: [],
 		},
 
 		validate: {
@@ -168,6 +170,35 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 	}, []);
 
 	//#endregion
+
+	const fetchTags = async () => {
+		const tags = (await axios.get<AxiosResponse<Tag[]>>("/tags/get")).data;
+		if (!tags.success) {
+			notifications.show({
+				title: "Error",
+				message: "while fetching all tags: " + tags.error,
+				color: "red",
+			});
+			console.error(tags.error);
+			return;
+		}
+
+		setAllTags(tags.data);
+	};
+
+	const getTagName = (id: number): string => {
+		const match = allTags.filter((tag) => tag.id === id);
+		if (match.length > 0) {
+			return match[0].name;
+		} else {
+			return "Icorrect id";
+		}
+	};
+
+	useEffect(() => {
+		fetchTags();
+	}, []);
+
 	return (
 		<Paper withBorder p={"md"} mb={16}>
 			<ModalForm
@@ -190,6 +221,7 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 						key={createForm.key("type")}
 						{...createForm.getInputProps("type")}
 					/>
+					<TagCombobox form={createForm} />
 				</Stack>
 			</ModalForm>
 
@@ -213,6 +245,8 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 						key={editForm.key("type")}
 						{...editForm.getInputProps("type")}
 					/>
+
+					<TagCombobox form={editForm} />
 				</Stack>
 			</ModalForm>
 
@@ -236,7 +270,7 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 
 			<Text fw={700}>Edit Company</Text>
 
-			<SimpleGrid cols={2} mt={8}>
+			<SimpleGrid cols={3} mt={8}>
 				<TextInput
 					label="Company Name"
 					value={company_name}
@@ -246,6 +280,12 @@ export default function EditCompany({ onUpdate, email_id, company_id, company_na
 				<TextInput
 					label="Company type"
 					value={company_type}
+					disabled
+				/>
+				<TextInput
+					label={"Tags"}
+					placeholder="No tags"
+					value={company_tags.map((id) => getTagName(id)).join(", ")}
 					disabled
 				/>
 			</SimpleGrid>

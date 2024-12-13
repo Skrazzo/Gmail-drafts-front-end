@@ -26,3 +26,8 @@ export interface ListCompanies extends ApiResponse {
 		type: string;
 	}[];
 }
+
+export interface Tag {
+	id: number;
+	name: string;
+}

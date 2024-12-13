@@ -46,6 +46,7 @@ export interface EmailMetadata {
 	"company_id": number;
 	"company_name": string | null;
 	"company_type": string;
+	"company_tags": number[];
 	"email": string;
 	"person_name": string | null;
 	"service": string;

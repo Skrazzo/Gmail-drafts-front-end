@@ -1,5 +1,5 @@
 import { sleep } from "@/lib/utils";
-import { AxiosResponse, EmailMetadata } from "@/types";
+import { AxiosResponse, CompanyForm, EmailMetadata, Tag } from "@/types";
 import {
 	CheckIcon,
 	Combobox,
@@ -18,12 +18,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 interface TagComboboxProps {
-	form: UseFormReturnType<EmailMetadata>;
-}
-
-interface Tag {
-	id: number;
-	name: string;
+	form: UseFormReturnType<any>;
 }
 
 export default function TagCombobox({ form }: TagComboboxProps) {
@@ -101,7 +96,7 @@ export default function TagCombobox({ form }: TagComboboxProps) {
 
 	const handleValueRemove = (tagId: number) => {
 		const currentTags = form.values.tags;
-		form.setValues({ tags: currentTags.filter((id) => id !== tagId) });
+		form.setValues({ tags: currentTags.filter((id: number) => id !== tagId) });
 	};
 
 	const handleTagAdd = (tagId: number) => {
@@ -116,7 +111,7 @@ export default function TagCombobox({ form }: TagComboboxProps) {
 	// Values are selected values that user has selected
 	let values;
 	if (form.values.tags) {
-		values = form.values.tags.map((tagId) => (
+		values = form.values.tags.map((tagId: number) => (
 			<Pill
 				key={tagId}
 				withRemoveButton
@@ -129,7 +124,7 @@ export default function TagCombobox({ form }: TagComboboxProps) {
 
 	// Options are available options that user can click
 	let options;
-	if (form.values.tags) {
+	if (form.values.tags !== null || form.values.tags !== undefined) {
 		options = allTags
 			.filter((tag) => !form.values.tags.includes(tag.id))
 			.filter((tag) => tag.name.toLowerCase().includes(search.toLowerCase()))
