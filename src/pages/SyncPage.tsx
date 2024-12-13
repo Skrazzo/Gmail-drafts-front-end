@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 export default function SyncPage() {
 	const [logs, setLogs] = useState<Logs | null>(null);
+	const [loading, setLoading] = useState<boolean>(false);
 
 	const fetchLogs = async () => {
 		const logs = (await axios.get<AxiosResponse<Logs>>("/database/sync/logs")).data;
@@ -39,6 +40,44 @@ export default function SyncPage() {
 		}
 	};
 
+	const downloadExport = async () => {
+		try {
+			setLoading(true);
+			// Make API request with axios
+			const response = await axios({
+				url: "/info/export", // Replace with your API endpoint
+				method: "GET",
+				responseType: "blob", // Important for handling file downloads
+				timeout: 300000,
+			});
+
+			// Create a blob from the response data
+			const blob = new Blob([response.data], {
+				type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+			});
+			// Create a temporary URL for the blob
+			const url = window.URL.createObjectURL(blob);
+
+			// Create a temporary link element
+			const link = document.createElement("a");
+			link.href = url;
+			link.setAttribute("download", "export.xlsx"); // Set desired filename
+
+			// Programmatically click the link to trigger download
+			document.body.appendChild(link);
+			link.click();
+
+			// Clean up
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(link);
+		} catch (error) {
+			console.error("Export failed:", error);
+			// Handle error appropriately - you might want to show a toast notification
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		fetchLogs();
 
@@ -58,12 +97,17 @@ export default function SyncPage() {
 				<Flex gap={8}>
 					<Button
 						onClick={syncDatabase}
-						loading={!logs || logs.isSyncing}
+						loading={!logs || logs.isSyncing || loading}
 						leftSection={<IconDatabaseImport />}
 					>
 						Sync
 					</Button>
-					<Button loading={!logs || logs.isSyncing} leftSection={<IconDatabaseExport />} variant="light">
+					<Button
+						loading={!logs || logs.isSyncing || loading}
+						leftSection={<IconDatabaseExport />}
+						variant="light"
+						onClick={downloadExport}
+					>
 						Export
 					</Button>
 				</Flex>
