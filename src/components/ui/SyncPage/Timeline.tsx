@@ -7,7 +7,7 @@ export default function SyncTimeline({ data }: { data: Logs | null }) {
 	if (!data) {
 		return (
 			<Flex gap={8} direction={"column"}>
-				{new Array(10).fill(null).map((_data, idx) => <Skeleton w={"100%"} h={32} />)}
+				{new Array(10).fill(null).map((_data, idx) => <Skeleton key={idx} w={"100%"} h={32} />)}
 			</Flex>
 		);
 	}

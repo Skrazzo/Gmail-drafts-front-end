@@ -1,7 +1,5 @@
-import { sleep } from "@/lib/utils";
-import { AxiosResponse, CompanyForm, EmailMetadata, Tag } from "@/types";
+import { AxiosResponse, Tag } from "@/types";
 import {
-	CheckIcon,
 	Combobox,
 	Group,
 	Highlight,
@@ -10,7 +8,7 @@ import {
 	Pill,
 	PillsInput,
 	Text,
-	useCombobox,
+	useCombobox
 } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
 import { notifications } from "@mantine/notifications";

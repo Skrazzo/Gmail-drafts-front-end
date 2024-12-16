@@ -7,7 +7,6 @@ import TextAlign from "@tiptap/extension-text-align";
 import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import "@mantine/tiptap/styles.css";
-import { useEffect } from "react";
 
 interface RichTextEditorProps {
 	value: string;
