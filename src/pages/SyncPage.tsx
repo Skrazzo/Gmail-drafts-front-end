@@ -1,7 +1,9 @@
 import SyncTimeline from "@/components/ui/SyncPage/Timeline";
+import { API_URL } from "@/global";
 import { AxiosResponse } from "@/types";
 import { Logs } from "@/types/Sync";
-import { Button, Flex, Paper, Text, Title } from "@mantine/core";
+import { Button, Flex, Paper, Progress, Text, Title } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { IconDatabaseExport, IconDatabaseImport } from "@tabler/icons-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -9,6 +11,7 @@ import { useEffect, useState } from "react";
 export default function SyncPage() {
 	const [logs, setLogs] = useState<Logs | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
+	const [exportStatus, setExportStatus] = useState<string>("");
 
 	const fetchLogs = async () => {
 		const logs = (await axios.get<AxiosResponse<Logs>>("/database/sync/logs")).data;
@@ -41,41 +44,30 @@ export default function SyncPage() {
 	};
 
 	const downloadExport = async () => {
-		try {
-			setLoading(true);
-			// Make API request with axios
-			const response = await axios({
-				url: "/info/export", // Replace with your API endpoint
-				method: "GET",
-				responseType: "blob", // Important for handling file downloads
-				timeout: 300000,
+		setLoading(true);
+		setExportStatus("Creating excel export, please don't close this page. This will take few minutes");
+
+		const response = (await axios<AxiosResponse<{ filePath: string }>>({
+			url: "/info/export", // Replace with your API endpoint
+			method: "GET",
+			timeout: 900000,
+		})).data;
+
+		if (!response.success) {
+			notifications.show({
+				title: "Error",
+				message: response.error,
+				color: "red",
 			});
-
-			// Create a blob from the response data
-			const blob = new Blob([response.data], {
-				type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-			});
-			// Create a temporary URL for the blob
-			const url = window.URL.createObjectURL(blob);
-
-			// Create a temporary link element
-			const link = document.createElement("a");
-			link.href = url;
-			link.setAttribute("download", "export.xlsx"); // Set desired filename
-
-			// Programmatically click the link to trigger download
-			document.body.appendChild(link);
-			link.click();
-
-			// Clean up
-			window.URL.revokeObjectURL(url);
-			document.body.removeChild(link);
-		} catch (error) {
-			console.error("Export failed:", error);
-			// Handle error appropriately - you might want to show a toast notification
-		} finally {
-			setLoading(false);
+			console.error(response.error);
+			setExportStatus("Server error");
+			return;
 		}
+
+		setLoading(false);
+		// Redirect user to download
+		const params = new URLSearchParams({ filePath: response.data.filePath });
+		window.open(`${API_URL}/info/export/download?${params}`, "_blank");
 	};
 
 	useEffect(() => {
@@ -94,7 +86,7 @@ export default function SyncPage() {
 		<>
 			<Title>Sync and export data</Title>
 			<Paper withBorder p={"md"} mt={32}>
-				<Flex gap={8}>
+				<Flex gap={8} align={"center"} wrap={"wrap"}>
 					<Button
 						onClick={syncDatabase}
 						loading={!logs || logs.isSyncing || loading}
@@ -110,6 +102,8 @@ export default function SyncPage() {
 					>
 						Export
 					</Button>
+
+					<Text>{exportStatus}</Text>
 				</Flex>
 			</Paper>
 

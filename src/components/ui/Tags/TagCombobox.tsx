@@ -1,15 +1,5 @@
 import { AxiosResponse, Tag } from "@/types";
-import {
-	Combobox,
-	Group,
-	Highlight,
-	Loader,
-	Paper,
-	Pill,
-	PillsInput,
-	Text,
-	useCombobox
-} from "@mantine/core";
+import { Combobox, Group, Highlight, Loader, Paper, Pill, PillsInput, Text, useCombobox } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import axios from "axios";
