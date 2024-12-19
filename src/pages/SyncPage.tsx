@@ -2,7 +2,7 @@ import SyncTimeline from "@/components/ui/SyncPage/Timeline";
 import { API_URL } from "@/global";
 import { AxiosResponse } from "@/types";
 import { Logs } from "@/types/Sync";
-import { Button, Flex, Paper, Progress, Text, Title } from "@mantine/core";
+import { Button, Flex, Paper, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconDatabaseExport, IconDatabaseImport } from "@tabler/icons-react";
 import axios from "axios";
