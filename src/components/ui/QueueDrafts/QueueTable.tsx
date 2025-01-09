@@ -3,7 +3,7 @@ import { Center, Flex, Paper, Skeleton, Table, Text, Title } from "@mantine/core
 import { IconMailboxOff } from "@tabler/icons-react";
 import moment from "moment";
 
-export default function QueueTable({ data }: { data: QueuedDrafts[] | null | undefined }) {
+export default function QueueTable({ data }: { data: QueuedDrafts['queue'] | null | undefined }) {
 	// Null
 	if (!data) {
 		return (

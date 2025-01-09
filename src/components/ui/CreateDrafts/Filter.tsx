@@ -64,7 +64,7 @@ export default function Filter(props: FilterProps) {
 				? (
 					<>
 						<Text fw={700} mt={16}>Filtered emails</Text>
-						<Flex gap={8} mt={8}>
+						<Flex gap={8} mt={8} wrap={'wrap'}>
 							{props.filteredEmails.map((e) => <Pill key={e}>{e}</Pill>)}
 						</Flex>
 					</>

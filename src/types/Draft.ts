@@ -14,11 +14,15 @@ export interface AvailableTemplates {
 }
 
 export interface QueuedDrafts {
-	id: number;
-	unsubscribe_id: number;
-	email_to: string;
-	email_body: string;
-	email_subject: string;
-	attachments: string;
-	updated_at: string;
+	totalInQueue:number;
+	draftsInGmail:number;
+	queue: {
+		id: number;
+		unsubscribe_id: number;
+		email_to: string;
+		email_body: string;
+		email_subject: string;
+		attachments: string;
+		updated_at: string;
+	}[];
 }
