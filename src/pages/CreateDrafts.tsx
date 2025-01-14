@@ -18,6 +18,7 @@ export default function CreateDrafts() {
             signatureTemplate: null,
             emails: [],
             steps: [],
+            stepsRepeat: 1,
         },
 
         validate: {
@@ -25,6 +26,7 @@ export default function CreateDrafts() {
             subject: (e) => (e ? null : "Subject cannot be empty"),
             // body: (e) => (e === "<p></p>" || e === null || e === "") ? "Email body cannot be empty" : null,
             bodyTemplate: (e) => (e === null ? "Please select template for email body" : null),
+            stepsRepeat: (e) => (e < 1 || !e ? "Must be a positive number" : null),
         },
     });
 

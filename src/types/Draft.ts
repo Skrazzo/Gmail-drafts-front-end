@@ -3,6 +3,7 @@ export interface DraftForm {
     body: string;
     emails: string[];
     steps: string[];
+    stepsRepeat: number;
     attachments: File | File[] | null;
     bodyTemplate: null | string;
     signatureTemplate: null | string;
