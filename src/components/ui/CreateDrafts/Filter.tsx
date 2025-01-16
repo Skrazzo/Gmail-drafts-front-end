@@ -24,16 +24,15 @@ export default function Filter(props: FilterProps) {
         // Check email with regex
         const emails: string[] = value.split("\n").filter((email) => {
             const tmp = email.trim();
-            if (/^\S+@\S+$/i.test(tmp)) {
-                return tmp;
-            }
+            return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(tmp);
         });
 
         if (emails.length === 0) return;
 
         // TODO: add email check with regex
         setLoading(true);
-        const filtered = (await axios.get<AxiosResponse<string[]>>("/emails/filter", { params: { emails } })).data;
+        const filtered = (await axios.post<AxiosResponse<string[]>>("/emails/filter", { emails })).data;
+
         if (filtered.success) {
             // props.setFiltered(filtered.data);
             props.form.setValues({ emails: filtered.data });

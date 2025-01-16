@@ -1,9 +1,10 @@
 import QueueTable from "@/components/ui/QueueDrafts/QueueTable";
 import { AxiosResponse, QueuedDrafts } from "@/types";
-import { Button, Flex, Text, Title } from "@mantine/core";
+import { Button, Flex, Text, Title, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
+import { IconTrash } from "@tabler/icons-react";
 
 export default function QueueDrafts() {
     const [nextInQueue, setNext] = useState<QueuedDrafts | null>(null);
@@ -59,6 +60,31 @@ export default function QueueDrafts() {
         fetchData();
     };
 
+    const removeQueueHandler = async () => {
+        const decision = confirm("Are you sure?");
+        if (!decision) {
+            console.log("Deletion canceled");
+            return;
+        }
+
+        setNext(null);
+        const res = (await axios.delete<AxiosResponse<string>>("/queue/delete")).data;
+        if (res.success) {
+            // Reload
+            fetchData();
+        } else {
+            // Error notification
+            fetchData();
+            notifications.show({
+                withBorder: true,
+                color: "red",
+                radius: "md",
+                title: "ERROR",
+                message: `Check console -> ${res.error}`,
+            });
+        }
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -76,6 +102,15 @@ export default function QueueDrafts() {
                     <Button disabled={nextInQueue.queue.length === 0} onClick={createDraftHandler}>
                         Create {nextInQueue.queue.length} drafts
                     </Button>
+                    <Tooltip label={"Delete all drafts from queue"}>
+                        <Button
+                            disabled={nextInQueue.queue.length === 0}
+                            onClick={removeQueueHandler}
+                            variant="outline"
+                        >
+                            <IconTrash />
+                        </Button>
+                    </Tooltip>
                     <Text c="dimmed">{nextInQueue.totalInQueue} total drafts left</Text>
                     <Text c="dimmed">{nextInQueue.draftsInGmail} drafts are in gmail</Text>
                 </Flex>
