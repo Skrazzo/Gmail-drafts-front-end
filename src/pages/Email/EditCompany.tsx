@@ -61,8 +61,6 @@ export default function EditCompany({
 
         // all values to lowercase
         let values = editForm.getValues() as CompanyForm;
-        values.name = values.name.toLowerCase();
-        values.type = values.type.toLowerCase();
 
         // set loading
         setLoading(true);
@@ -70,7 +68,13 @@ export default function EditCompany({
         // Send request to edit company
         const res = await axios.put("/company/edit", null, { params: { ...values, company_id } });
         if (!res.data.success) {
-            alert("There was an error while editing company");
+            notifications.show({
+                withBorder: true,
+                radius: "md",
+                title: "Server error",
+                color: "red",
+                message: res.data.error.toString(),
+            });
             console.error(res.data.error);
         } else {
             onUpdate();
@@ -102,8 +106,6 @@ export default function EditCompany({
 
         // all values to lowercase
         let values = createForm.getValues() as CompanyForm;
-        values.name = values.name.toLowerCase();
-        values.type = values.type.toLowerCase();
 
         // set loading
         setLoading(true);
@@ -119,6 +121,7 @@ export default function EditCompany({
 
         if (exists.data.data) {
             createForm.setErrors({ name: "Company already exists" });
+            setLoading(false);
             return;
         }
 
