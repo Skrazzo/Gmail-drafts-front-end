@@ -2,7 +2,7 @@ import { ModalForm } from "@/components/ui/ModalForm";
 import TagCombobox from "@/components/ui/Tags/TagCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
 import { AxiosResponse, CompanyExists, CompanyForm, DecodedInputSource, ListCompanies, Tag } from "@/types";
-import { Button, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
+import { Button, Center, Image, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconLink, IconPencil, IconPlus } from "@tabler/icons-react";
@@ -21,6 +21,7 @@ interface EmailCompanyProps {
     company_type: string;
     company_tags: number[];
     company_input_source: string;
+    company_logo: string | null;
     onUpdate: () => void;
 }
 
@@ -31,6 +32,7 @@ export default function EditCompany({
     company_name,
     company_tags,
     company_type,
+    company_logo,
     company_input_source,
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -45,11 +47,14 @@ export default function EditCompany({
             name: company_name,
             type: company_type,
             tags: company_tags,
+            logo_url: company_logo,
         },
 
         validate: {
             name: (e) => (e.length < 4 ? "Name is too short" : null),
             type: (e) => (e.length < 4 ? "Type is too short" : null),
+            logo_url: (e) =>
+                e?.toString() === undefined || e === "" ? null : e.includes("https://") ? null : "Invalid URL",
         },
     });
 
@@ -66,7 +71,7 @@ export default function EditCompany({
         setLoading(true);
 
         // Send request to edit company
-        const res = await axios.put("/company/edit", null, { params: { ...values, company_id } });
+        const res = await axios.put("/company/edit", { ...values, company_id });
         if (!res.data.success) {
             notifications.show({
                 withBorder: true,
@@ -88,13 +93,16 @@ export default function EditCompany({
     const createForm = useForm<CompanyForm>({
         initialValues: {
             name: "",
-            type: "",
+            type: "company",
             tags: [],
+            logo_url: null,
         },
 
         validate: {
             name: (e) => (e.length < 4 ? "Name is too short" : null),
             type: (e) => (e.length < 4 ? "Type is too short" : null),
+            logo_url: (e) =>
+                e?.toString() === undefined || e === "" ? null : e.includes("https://") ? null : "Invalid URL",
         },
     });
 
@@ -126,7 +134,7 @@ export default function EditCompany({
         }
 
         // Send request to create company
-        const res = await axios.post("/company/create", null, { params: { ...values, email_id } });
+        const res = await axios.post("/company/create", { ...values, email_id });
         if (!res.data.success) {
             console.error(res.data.error);
         } else {
@@ -213,103 +221,120 @@ export default function EditCompany({
     }, []);
 
     return (
-        <Paper withBorder p={"md"} mb={16}>
-            <ModalForm
-                title="Create new company"
-                onConfirm={createHandler}
-                onClose={() => setCM(false)}
-                opened={createModal}
-                loading={loading}
-            >
-                <Stack gap={"xs"}>
+        <>
+            <Center>{company_logo && <Image src={company_logo} h={120} radius={"md"} mb={16} />}</Center>
+            <Paper withBorder p={"md"} mb={16}>
+                <ModalForm
+                    title="Create new company"
+                    onConfirm={createHandler}
+                    onClose={() => setCM(false)}
+                    opened={createModal}
+                    loading={loading}
+                >
+                    <Stack gap={"xs"}>
+                        <TextInput
+                            label={"Name"}
+                            placeholder="New company name"
+                            key={createForm.key("name")}
+                            {...createForm.getInputProps("name")}
+                        />
+                        <TextInput
+                            label={"Type"}
+                            placeholder="Company type"
+                            key={createForm.key("type")}
+                            {...createForm.getInputProps("type")}
+                        />
+                        <TagCombobox form={createForm} />
+                        <TextInput
+                            label={"Link to logo"}
+                            placeholder="Logo url"
+                            key={createForm.key("logo_url")}
+                            {...createForm.getInputProps("logo_url")}
+                        />
+                    </Stack>
+                </ModalForm>
+
+                <ModalForm
+                    title="Edit company"
+                    onConfirm={editHandler}
+                    onClose={() => setEM(false)}
+                    opened={editModal}
+                    loading={loading}
+                >
+                    <Stack gap={"xs"}>
+                        <TextInput
+                            label={"Name"}
+                            placeholder="Company name"
+                            key={editForm.key("name")}
+                            {...editForm.getInputProps("name")}
+                            className={getInputSourceClass(inputSource.name)}
+                        />
+                        <TextInput
+                            label={"Type"}
+                            placeholder="Company type"
+                            key={editForm.key("type")}
+                            {...editForm.getInputProps("type")}
+                            className={getInputSourceClass(inputSource.type)}
+                        />
+
+                        <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
+
+                        <TextInput
+                            label={"Logo url"}
+                            placeholder="Logo url (https://...)"
+                            key={editForm.key("logo_url")}
+                            {...editForm.getInputProps("logo_url")}
+                            className={getInputSourceClass(inputSource.logo_url)}
+                        />
+                    </Stack>
+                </ModalForm>
+
+                <ModalForm
+                    title="Link to another company"
+                    onConfirm={linkHandler}
+                    onClose={() => setLM(false)}
+                    opened={linkModal}
+                    loading={loading}
+                >
+                    {!companies ? (
+                        <p>Loading companies...</p>
+                    ) : (
+                        <Select
+                            label="Search and select company"
+                            placeholder="Pick a company"
+                            data={companies.map((c) => ({ value: c.id.toString(), label: c.name }))}
+                            searchable
+                            {...linkForm.getInputProps("company_id")}
+                        />
+                    )}
+                </ModalForm>
+
+                <Text fw={700}>Edit Company</Text>
+
+                <SimpleGrid cols={3} mt={8}>
+                    <TextInput label="Company Name" value={company_name} disabled />
+
+                    <TextInput label="Company type" value={company_type} disabled />
                     <TextInput
-                        label={"Name"}
-                        placeholder="New company name"
-                        key={createForm.key("name")}
-                        {...createForm.getInputProps("name")}
+                        label={"Tags"}
+                        placeholder="No tags"
+                        value={company_tags.map((id) => getTagName(id)).join(", ")}
+                        disabled
                     />
-                    <TextInput
-                        label={"Type"}
-                        placeholder="Company type"
-                        key={createForm.key("type")}
-                        {...createForm.getInputProps("type")}
-                    />
-                    <TagCombobox form={createForm} />
-                </Stack>
-            </ModalForm>
+                </SimpleGrid>
 
-            <ModalForm
-                title="Edit company"
-                onConfirm={editHandler}
-                onClose={() => setEM(false)}
-                opened={editModal}
-                loading={loading}
-            >
-                <Stack gap={"xs"}>
-                    <TextInput
-                        label={"Name"}
-                        placeholder="Company name"
-                        key={editForm.key("name")}
-                        {...editForm.getInputProps("name")}
-                        className={getInputSourceClass(inputSource.name)}
-                    />
-                    <TextInput
-                        label={"Type"}
-                        placeholder="Company type"
-                        key={editForm.key("type")}
-                        {...editForm.getInputProps("type")}
-                        className={getInputSourceClass(inputSource.type)}
-                    />
-
-                    <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
-                </Stack>
-            </ModalForm>
-
-            <ModalForm
-                title="Link to another company"
-                onConfirm={linkHandler}
-                onClose={() => setLM(false)}
-                opened={linkModal}
-                loading={loading}
-            >
-                {!companies ? (
-                    <p>Loading companies...</p>
-                ) : (
-                    <Select
-                        label="Search and select company"
-                        placeholder="Pick a company"
-                        data={companies.map((c) => ({ value: c.id.toString(), label: c.name }))}
-                        searchable
-                        {...linkForm.getInputProps("company_id")}
-                    />
-                )}
-            </ModalForm>
-
-            <Text fw={700}>Edit Company</Text>
-
-            <SimpleGrid cols={3} mt={8}>
-                <TextInput label="Company Name" value={company_name} disabled />
-
-                <TextInput label="Company type" value={company_type} disabled />
-                <TextInput
-                    label={"Tags"}
-                    placeholder="No tags"
-                    value={company_tags.map((id) => getTagName(id)).join(", ")}
-                    disabled
-                />
-            </SimpleGrid>
-
-            <SimpleGrid cols={3} mt={16}>
-                <Button onClick={() => setCM(true)} variant="light" leftSection={<IconPlus />}>
-                    Create company
-                </Button>
-                <Button onClick={() => setEM(true)} variant="light" leftSection={<IconPencil />}>
-                    Edit company name
-                </Button>
-                <Button onClick={() => setLM(true)} variant="light" leftSection={<IconLink />}>
-                    Link to another company
-                </Button>
-            </SimpleGrid>
-        </Paper>
+                <SimpleGrid cols={3} mt={16}>
+                    <Button onClick={() => setCM(true)} variant="light" leftSection={<IconPlus />}>
+                        Create company
+                    </Button>
+                    <Button onClick={() => setEM(true)} variant="light" leftSection={<IconPencil />}>
+                        Edit company name
+                    </Button>
+                    <Button onClick={() => setLM(true)} variant="light" leftSection={<IconLink />}>
+                        Link to another company
+                    </Button>
+                </SimpleGrid>
+            </Paper>
+        </>
     );
 }

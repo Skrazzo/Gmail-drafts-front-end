@@ -1,5 +1,6 @@
 export interface CompanyForm {
-	name: string;
-	type: string;
-	tags: number[];
+    name: string;
+    type: string;
+    tags: number[];
+    logo_url: string | null;
 }
