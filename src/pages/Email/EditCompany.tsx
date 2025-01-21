@@ -2,13 +2,14 @@ import { ModalForm } from "@/components/ui/ModalForm";
 import TagCombobox from "@/components/ui/Tags/TagCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
 import { AxiosResponse, CompanyExists, CompanyForm, DecodedInputSource, ListCompanies, Tag } from "@/types";
-import { Button, Center, Image, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
+import { Anchor, Button, Center, Flex, Image, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconLink, IconPencil, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "../../index.css";
+import IconVisitWebsite from "@/CustomIcons/IconVisitWebsite";
 
 interface LinkCompanyForm {
     company_id: number | string;
@@ -22,6 +23,7 @@ interface EmailCompanyProps {
     company_tags: number[];
     company_input_source: string;
     company_logo: string | null;
+    company_website: string;
     onUpdate: () => void;
 }
 
@@ -33,6 +35,7 @@ export default function EditCompany({
     company_tags,
     company_type,
     company_logo,
+    company_website,
     company_input_source,
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -48,6 +51,7 @@ export default function EditCompany({
             type: company_type,
             tags: company_tags,
             logo_url: company_logo,
+            company_website: company_website,
         },
 
         validate: {
@@ -55,6 +59,7 @@ export default function EditCompany({
             type: (e) => (e.length < 4 ? "Type is too short" : null),
             logo_url: (e) =>
                 e?.toString() === undefined || e === "" ? null : e.includes("https://") ? null : "Invalid URL",
+            company_website: (e) => (e === "" ? null : e.includes("https://") ? null : "Invalid URL"),
         },
     });
 
@@ -96,6 +101,7 @@ export default function EditCompany({
             type: "company",
             tags: [],
             logo_url: null,
+            company_website: "",
         },
 
         validate: {
@@ -103,6 +109,7 @@ export default function EditCompany({
             type: (e) => (e.length < 4 ? "Type is too short" : null),
             logo_url: (e) =>
                 e?.toString() === undefined || e === "" ? null : e.includes("https://") ? null : "Invalid URL",
+            company_website: (e) => (e === "" ? null : e.includes("https://") ? null : "Invalid URL"),
         },
     });
 
@@ -244,6 +251,14 @@ export default function EditCompany({
                             key={createForm.key("type")}
                             {...createForm.getInputProps("type")}
                         />
+
+                        <TextInput
+                            label={"Company website"}
+                            placeholder="Website url (https://...)"
+                            key={createForm.key("company_website")}
+                            {...createForm.getInputProps("company_website")}
+                        />
+
                         <TagCombobox form={createForm} />
                         <TextInput
                             label={"Link to logo"}
@@ -275,6 +290,14 @@ export default function EditCompany({
                             key={editForm.key("type")}
                             {...editForm.getInputProps("type")}
                             className={getInputSourceClass(inputSource.type)}
+                        />
+
+                        <TextInput
+                            label={"Company website"}
+                            placeholder="Website url (https://...)"
+                            key={editForm.key("company_website")}
+                            {...editForm.getInputProps("company_website")}
+                            className={getInputSourceClass(inputSource.company_website)}
                         />
 
                         <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
@@ -309,7 +332,17 @@ export default function EditCompany({
                     )}
                 </ModalForm>
 
-                <Text fw={700}>Edit Company</Text>
+                <Flex align={"center"} gap={16}>
+                    <Text fw={700}>Edit Company</Text>
+                    {company_website && (
+                        <Anchor href={company_website} target="_blank" rel="noopener noreferrer">
+                            <Flex gap={8} align={"center"}>
+                                <IconVisitWebsite />
+                                <Text>Open website</Text>
+                            </Flex>
+                        </Anchor>
+                    )}
+                </Flex>
 
                 <SimpleGrid cols={3} mt={8}>
                     <TextInput label="Company Name" value={company_name} disabled />

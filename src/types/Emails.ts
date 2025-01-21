@@ -49,8 +49,10 @@ export interface EmailMetadata {
     company_input_source: string;
     company_tags: number[];
     company_logo: string | null;
+    company_website: string | null;
     email: string;
     person_name: string | null;
+    person_position: string | null;
     service: string;
     sent_email: 0 | 1;
     recieved_email: 0 | 1;
@@ -67,5 +69,6 @@ export interface EmailMetadata {
     last_sent_subject: string | null;
     last_sent_snippet: string | null;
     input_source: string;
+    last_contact: string | null;
     [key: string]: any;
 }

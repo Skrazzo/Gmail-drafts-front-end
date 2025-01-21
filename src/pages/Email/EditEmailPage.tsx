@@ -57,7 +57,7 @@ export default function EditEmail() {
 
         // update email info
         axios
-            .put(`/email_info`, null, { params: values })
+            .put(`/email_info`, { ...values })
             .then((res) => {
                 if (!res.data.success) {
                     notifications.show({
@@ -78,9 +78,9 @@ export default function EditEmail() {
                     });
                 }
             })
-            .finally(() => {
+            .finally(async () => {
+                await fetchData();
                 setLoading(false);
-                fetchData();
             });
     };
 
@@ -106,6 +106,7 @@ export default function EditEmail() {
                         company_type={emailData.company_type || ""}
                         company_tags={emailData.company_tags || []}
                         company_logo={emailData.company_logo || null}
+                        company_website={emailData.company_website || ""}
                         company_id={emailData.company_id}
                         company_input_source={emailData.company_input_source}
                     />

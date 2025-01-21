@@ -1,6 +1,7 @@
 import { useForm } from "@mantine/form";
 import {
     Button,
+    Flex,
     Grid,
     Group,
     NumberInput,
@@ -16,6 +17,8 @@ import { DecodedInputSource, EmailMetadata } from "@/types";
 import { countries } from "countries-list";
 import TagCombobox from "@/components/ui/Tags/TagCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
+import IconUpdateTime from "@/CustomIcons/IconUpdateTime";
+import moment from "moment";
 
 interface EmailFormProps {
     initialData: EmailMetadata;
@@ -24,14 +27,31 @@ interface EmailFormProps {
     loading: boolean;
 }
 
+const LastContactDate = ({ date }: { date: string | null }) => {
+    if (date) {
+        const momentDate = moment(date);
+        const formatteed = momentDate.format("DD MMM YYYY HH:mm");
+        const ago = momentDate.fromNow();
+        return (
+            <Text c={"dimmed"}>
+                {formatteed} - {ago}
+            </Text>
+        );
+    } else {
+        return <Text c={"dimmed"}>No date logged</Text>;
+    }
+};
+
 export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailFormProps) {
     const form = useForm<EmailMetadata>({
         initialValues: initialData,
         validate: {
             interest: (value) =>
-                value === null || value === "" || (value >= 0 && value <= 10)
+                value === null || value === ""
                     ? null
-                    : "Interest must be between 0 and 10",
+                    : value >= 0 && value <= 10
+                      ? null
+                      : "Interest must be between 0 and 10",
         },
     });
 
@@ -61,6 +81,14 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
         });
     };
 
+    const updateLastContact = () => {
+        form.setValues({
+            last_contact: moment().toISOString(),
+        });
+
+        submitForm();
+    };
+
     return (
         <Paper p="md" withBorder>
             <form onSubmit={(e) => e.preventDefault()}>
@@ -77,6 +105,14 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             {...form.getInputProps("person_name")}
                             disabled={isReadOnly("person_name")}
                             className={getInputSourceClass(inputSource.person_name)}
+                        />
+
+                        <TextInput
+                            label="Person Position"
+                            placeholder="Enter person position"
+                            {...form.getInputProps("person_position")}
+                            disabled={isReadOnly("person_position")}
+                            className={getInputSourceClass(inputSource.person_position)}
                         />
 
                         <Select
@@ -131,6 +167,20 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                         disabled={isReadOnly("last_comment")}
                         className={getInputSourceClass(inputSource.last_comment)}
                     />
+
+                    {/* add last contact info */}
+                    <Flex align={"center"} gap={8}>
+                        <Button
+                            variant={"outline"}
+                            leftSection={<IconUpdateTime />}
+                            onClick={updateLastContact}
+                            loading={loading}
+                        >
+                            Update last contact
+                        </Button>
+
+                        <LastContactDate date={form.values.last_contact} />
+                    </Flex>
 
                     {/* Email Status - Read Only */}
                     <Paper withBorder p="sm">
