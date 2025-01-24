@@ -4,7 +4,7 @@ import { AxiosResponse } from "@/types";
 import { Logs } from "@/types/Sync";
 import { Button, Flex, Paper, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconDatabaseExport, IconDatabaseImport } from "@tabler/icons-react";
+import { IconDatabaseExport } from "@tabler/icons-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import IconSyncDatabase from "@/CustomIcons/IconSyncDatabase";
@@ -26,6 +26,25 @@ export default function SyncPage() {
     };
 
     const syncDatabase = async () => {
+        setLoading(true);
+        const backupDatabase = (
+            await axios.get<AxiosResponse<string>>("/database/backup", { params: { customName: "Before sync" } })
+        ).data;
+
+        if (!backupDatabase.success) {
+            alert("Aborting sync: " + backupDatabase.error);
+            console.error(backupDatabase.error);
+            setLoading(false);
+            return;
+        }
+
+        notifications.show({
+            title: "Backup created",
+            message: backupDatabase.data,
+            color: "green",
+        });
+
+        setLoading(false);
         const syncData = (
             await axios.get<AxiosResponse<Logs>>("/database/sync", {
                 headers: {
