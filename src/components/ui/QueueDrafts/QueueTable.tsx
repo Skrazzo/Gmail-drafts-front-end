@@ -24,9 +24,7 @@ export default function QueueTable({ nextInQueue }: { nextInQueue: QueuedDrafts 
                 <Center h={350}>
                     <Flex direction={"column"} gap={8} align={"center"}>
                         <IconMailboxOff size={96} strokeWidth={1.5} color="#4A72FF" />
-                        <Title maw={250}>
-                            {nextInQueue.totalInQueue > 0 ? "Gmail drafts are full" : "Queue is empty"}
-                        </Title>
+                        <Title maw={250}>{nextInQueue.totalInQueue > 0 ? "Gmail is full" : "Queue is empty"}</Title>
                         <Text c="dimmed" maw={300} className="text-center">
                             {nextInQueue.totalInQueue > 0
                                 ? "Send out drafts in your gmail account and next in queue will appear here"

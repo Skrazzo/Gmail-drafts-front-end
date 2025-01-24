@@ -32,4 +32,12 @@ export interface Tag {
     name: string;
 }
 
+export interface UnsubscribedData {
+    person_name: string | null;
+    email_id: string;
+    email: string;
+    reason: string;
+    updated_at: string;
+}
+
 export type DecodedInputSource = Record<string, "manual" | "auto" | "excel" | undefined>;
