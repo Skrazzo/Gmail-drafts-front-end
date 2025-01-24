@@ -7,11 +7,15 @@ import { useForm } from "@mantine/form";
 import axios from "axios";
 import { notifications } from "@mantine/notifications";
 import StepsInput from "@/components/ui/CreateDrafts/StepsInput";
+import type { AvailableFromEmails } from "@/types";
+import { useEffect, useState } from "react";
 
 export default function CreateDrafts() {
+    const [availableEmails, setAvailableEmails] = useState<AvailableFromEmails[]>([]);
     const form = useForm<DraftForm>({
         initialValues: {
             subject: "",
+            email_from: "me",
             body: "<p></p>",
             attachments: null,
             bodyTemplate: null,
@@ -27,6 +31,7 @@ export default function CreateDrafts() {
             // body: (e) => (e === "<p></p>" || e === null || e === "") ? "Email body cannot be empty" : null,
             bodyTemplate: (e) => (e === null ? "Please select template for email body" : null),
             stepsRepeat: (e) => (e < 1 || !e ? "Must be a positive number" : null),
+            email_from: (e) => (e === null || e === "" || e === "me" ? "Please select email address" : null),
         },
     });
 
@@ -73,11 +78,46 @@ export default function CreateDrafts() {
         }
     };
 
+    // Fetch available emails
+    useEffect(() => {
+        const fetchEmails = async () => {
+            try {
+                const res = (await axios.get<AxiosResponse<AvailableFromEmails[]>>("/emails/connected")).data;
+                if (!res.success) {
+                    notifications.show({
+                        title: "Error",
+                        message: res.error,
+                        color: "red",
+                    });
+                    return;
+                }
+
+                setAvailableEmails(res.data);
+
+                // Set default email in form
+                const defaultEmail = res.data.find((email) => email.isDefault);
+                if (defaultEmail) {
+                    form.setFieldValue("email_from", defaultEmail.email);
+                }
+            } catch (error) {
+                console.error("Failed to fetch connected emails:", error);
+                notifications.show({
+                    title: "Error",
+                    message: "Failed to load connected email addresses",
+                    color: "red",
+                });
+            }
+        };
+
+        fetchEmails();
+    }, []);
+
     return (
         <>
             <Title mb={16}>Create drafts</Title>
+
             <Filter form={form} filteredEmails={form.values.emails} />
-            <EmailContent form={form} />
+            <EmailContent form={form} availableEmails={availableEmails} />
             <StepsInput form={form} />
             <TemplateSelection form={form} onSubmit={submitHandler} />
         </>

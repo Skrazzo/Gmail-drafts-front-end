@@ -2,6 +2,7 @@ export interface DraftForm {
     subject: string;
     body: string;
     emails: string[];
+    email_from: string;
     steps: string[];
     stepsRepeat: number;
     attachments: File | File[] | null;
@@ -30,6 +31,13 @@ export interface AvailableTemplates {
     signatures: string[];
 }
 
+export interface AvailableFromEmails {
+    email: string;
+    type: string;
+    isDefault: boolean;
+    name: string; // can be empty
+}
+
 export interface QueuedDrafts {
     totalInQueue: number;
     draftsInGmail: number;
@@ -37,6 +45,7 @@ export interface QueuedDrafts {
         id: number;
         unsubscribe_id: number;
         email_to: string;
+        email_from: string;
         email_body: string;
         email_subject: string;
         attachments: string;

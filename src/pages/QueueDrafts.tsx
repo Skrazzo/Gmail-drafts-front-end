@@ -92,7 +92,7 @@ export default function QueueDrafts() {
     return (
         <>
             <Title mb={16}>Queued drafts</Title>
-            <QueueTable data={nextInQueue?.queue} />
+            <QueueTable nextInQueue={nextInQueue} />
             {!nextInQueue ? (
                 <Button mt={16} loading>
                     Loading
