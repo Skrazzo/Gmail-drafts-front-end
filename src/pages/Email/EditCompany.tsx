@@ -24,6 +24,7 @@ interface EmailCompanyProps {
     company_input_source: string;
     company_logo: string | null;
     company_website: string;
+    company_address: string | null;
     onUpdate: () => void;
 }
 
@@ -36,6 +37,7 @@ export default function EditCompany({
     company_type,
     company_logo,
     company_website,
+    company_address,
     company_input_source,
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -52,6 +54,7 @@ export default function EditCompany({
             tags: company_tags,
             logo_url: company_logo,
             company_website: company_website,
+            address: company_address,
         },
 
         validate: {
@@ -102,6 +105,7 @@ export default function EditCompany({
             tags: [],
             logo_url: null,
             company_website: "",
+            address: null,
         },
 
         validate: {
@@ -259,13 +263,20 @@ export default function EditCompany({
                             {...createForm.getInputProps("company_website")}
                         />
 
-                        <TagCombobox form={createForm} />
                         <TextInput
                             label={"Link to logo"}
                             placeholder="Logo url"
                             key={createForm.key("logo_url")}
                             {...createForm.getInputProps("logo_url")}
                         />
+
+                        <TextInput
+                            label={"Address"}
+                            placeholder="Company address"
+                            key={createForm.key("address")}
+                            {...createForm.getInputProps("address")}
+                        />
+                        <TagCombobox form={createForm} />
                     </Stack>
                 </ModalForm>
 
@@ -299,9 +310,6 @@ export default function EditCompany({
                             {...editForm.getInputProps("company_website")}
                             className={getInputSourceClass(inputSource.company_website)}
                         />
-
-                        <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
-
                         <TextInput
                             label={"Logo url"}
                             placeholder="Logo url (https://...)"
@@ -309,6 +317,16 @@ export default function EditCompany({
                             {...editForm.getInputProps("logo_url")}
                             className={getInputSourceClass(inputSource.logo_url)}
                         />
+
+                        <TextInput
+                            label={"Address"}
+                            placeholder="Company address"
+                            key={editForm.key("address")}
+                            {...editForm.getInputProps("address")}
+                            className={getInputSourceClass(inputSource.address)}
+                        />
+
+                        <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
                     </Stack>
                 </ModalForm>
 

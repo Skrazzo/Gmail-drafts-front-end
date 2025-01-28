@@ -4,4 +4,5 @@ export interface CompanyForm {
     tags: number[];
     logo_url: string | null;
     company_website: string;
+    address: string | null;
 }

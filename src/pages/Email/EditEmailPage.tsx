@@ -107,6 +107,7 @@ export default function EditEmail() {
                         company_tags={emailData.company_tags || []}
                         company_logo={emailData.company_logo || null}
                         company_website={emailData.company_website || ""}
+                        company_address={emailData.company_address}
                         company_id={emailData.company_id}
                         company_input_source={emailData.company_input_source}
                     />

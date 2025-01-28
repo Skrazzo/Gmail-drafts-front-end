@@ -1,23 +1,10 @@
 import { useForm } from "@mantine/form";
-import {
-    Button,
-    Flex,
-    Grid,
-    Group,
-    NumberInput,
-    Paper,
-    Select,
-    SimpleGrid,
-    Stack,
-    Text,
-    Textarea,
-    TextInput,
-} from "@mantine/core";
+import { Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
 import { DecodedInputSource, EmailMetadata } from "@/types";
 import { countries } from "countries-list";
 import TagCombobox from "@/components/ui/Tags/TagCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
-import IconUpdateTime from "@/CustomIcons/IconUpdateTime";
+
 import moment from "moment";
 
 interface EmailFormProps {
@@ -26,21 +13,6 @@ interface EmailFormProps {
     isReadOnly: (column: string) => boolean;
     loading: boolean;
 }
-
-const LastContactDate = ({ date }: { date: string | null }) => {
-    if (date) {
-        const momentDate = moment(date);
-        const formatteed = momentDate.format("DD MMM YYYY HH:mm");
-        const ago = momentDate.fromNow();
-        return (
-            <Text c={"dimmed"}>
-                {formatteed} - {ago}
-            </Text>
-        );
-    } else {
-        return <Text c={"dimmed"}>No date logged</Text>;
-    }
-};
 
 export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailFormProps) {
     const form = useForm<EmailMetadata>({
@@ -79,14 +51,6 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                 label: country.name,
             };
         });
-    };
-
-    const updateLastContact = () => {
-        form.setValues({
-            last_contact: moment().toISOString(),
-        });
-
-        submitForm();
     };
 
     return (
@@ -157,6 +121,14 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             disabled={isReadOnly("interest")}
                             className={getInputSourceClass(inputSource.interest)}
                         />
+
+                        <TextInput
+                            label="Address"
+                            placeholder="Enter address"
+                            {...form.getInputProps("address")}
+                            disabled={isReadOnly("address")}
+                            className={getInputSourceClass(inputSource.address)}
+                        />
                     </SimpleGrid>
 
                     <Textarea
@@ -168,45 +140,6 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                         className={getInputSourceClass(inputSource.last_comment)}
                     />
 
-                    {/* add last contact info */}
-                    <Flex align={"center"} gap={8}>
-                        <Button
-                            variant={"outline"}
-                            leftSection={<IconUpdateTime />}
-                            onClick={updateLastContact}
-                            loading={loading}
-                        >
-                            Update last contact
-                        </Button>
-
-                        <LastContactDate date={form.values.last_contact} />
-                    </Flex>
-
-                    {/* Email Status - Read Only */}
-                    <Paper withBorder p="sm">
-                        <Text size="sm" fw={500} mb="xs">
-                            Email Status (Read Only)
-                        </Text>
-                        <Grid>
-                            <Grid.Col span={6}>
-                                <Text size="sm" c="dimmed">
-                                    Sent: {initialData.sent_email ? "Yes" : "No"}
-                                </Text>
-                                <Text size="sm" c="dimmed">
-                                    Received: {initialData.recieved_email ? "Yes" : "No"}
-                                </Text>
-                            </Grid.Col>
-                            <Grid.Col span={6}>
-                                <Text size="sm" c="dimmed">
-                                    Last Sent: {initialData.last_sent_date || "N/A"}
-                                </Text>
-                                <Text size="sm" c="dimmed">
-                                    Last Received: {initialData.last_received_date || "N/A"}
-                                </Text>
-                            </Grid.Col>
-                        </Grid>
-                    </Paper>
-
                     {/* Recent Email Details - Read Only */}
                     <Paper withBorder p="sm">
                         <Text size="sm" fw={500} mb="xs">
@@ -215,7 +148,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                         {initialData.last_sent_subject && (
                             <div className="mb-3">
                                 <Text size="sm" fw={500}>
-                                    Last Sent Email:
+                                    Last Sent Email: {moment(initialData.last_sent_date).format("MMMM Do YYYY, HH:mm")}
                                 </Text>
                                 <Text size="sm" c="dimmed">
                                     Subject: {initialData.last_sent_subject}
@@ -228,7 +161,8 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                         {initialData.last_received_subject && (
                             <div>
                                 <Text size="sm" fw={500}>
-                                    Last Received Email:
+                                    Last Received Email:{" "}
+                                    {moment(initialData.last_received_date).format("MMMM Do YYYY, HH:mm")}
                                 </Text>
                                 <Text size="sm" c="dimmed">
                                     Subject: {initialData.last_received_subject}

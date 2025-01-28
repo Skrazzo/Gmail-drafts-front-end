@@ -69,6 +69,7 @@ export interface EmailMetadata {
     last_sent_subject: string | null;
     last_sent_snippet: string | null;
     input_source: string;
-    last_contact: string | null;
+    address: string | null;
+    company_address: string | null;
     [key: string]: any;
 }
