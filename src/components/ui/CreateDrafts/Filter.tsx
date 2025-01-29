@@ -1,19 +1,47 @@
-import { AxiosResponse, DraftForm } from "@/types";
-import { Button, Flex, Paper, Pill, Text, Textarea } from "@mantine/core";
+import requests from "@/functions/Requests";
+import { AxiosResponse, DraftForm, Tag } from "@/types";
+import { Button, Flex, Modal, MultiSelect, Paper, Pill, Text, Textarea } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
-import { IconMail } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { IconMail, IconTags } from "@tabler/icons-react";
 import axios from "axios";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface FilterProps {
     filteredEmails: string[];
-    // setFiltered: (emails: string[]) => void;
     form: UseFormReturnType<DraftForm>;
 }
 
 export default function Filter(props: FilterProps) {
     const [loading, setLoading] = useState<boolean>(false);
+    const [modalOpened, setModalOpened] = useState(false);
+    const [tags, setTags] = useState<Tag[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const emailListRef = useRef<HTMLTextAreaElement | null>(null);
+
+    // Fetch tags when component mounts
+    const fetchTags = async () => {
+        try {
+            const res = (await axios.get<AxiosResponse<Tag[]>>("/tags/get")).data;
+            if (res.success) {
+                setTags(res.data);
+            } else {
+                throw new Error(res.error);
+            }
+        } catch (error) {
+            console.error("Error fetching tags:", error);
+            // You'll need to import notifications from @mantine/notifications
+            notifications.show({
+                title: "Error",
+                message: error instanceof Error ? error.message : "Failed to fetch tags",
+                color: "red",
+            });
+        }
+    };
+
+    useEffect(() => {
+        fetchTags();
+    }, []);
 
     const onFilterHandler = async (): Promise<void> => {
         if (!emailListRef.current) return;
@@ -29,59 +57,88 @@ export default function Filter(props: FilterProps) {
 
         if (emails.length === 0) return;
 
-        // TODO: add email check with regex
-        setLoading(true);
-        const filtered = (await axios.post<AxiosResponse<string[]>>("/emails/filter", { emails })).data;
+        requests.post<string[]>({
+            url: "/emails/filter",
+            data: { emails },
+            before: () => setLoading(true),
+            success: (filtered) => {
+                setLoading(false);
+                props.form.setValues({ emails: filtered });
+                if (emailListRef.current) emailListRef.current.value = "";
+            },
+        });
+    };
 
-        if (filtered.success) {
-            // props.setFiltered(filtered.data);
-            props.form.setValues({ emails: filtered.data });
-            emailListRef.current.value = "";
-        } else {
-            alert("Error: " + filtered.error);
-        }
+    const onTagSelectHandler = async () => {
+        setModalOpened(false);
 
-        setLoading(false);
+        requests.post<string[]>({
+            url: "/emails/filter",
+            data: { tagIds: selectedTags },
+            before: () => setLoading(true),
+            success: (data) => {
+                setLoading(false);
+                props.form.setValues({ emails: data });
+            },
+        });
     };
 
     return (
-        <Paper withBorder p="md">
-            <Text fw={700}>Select emails</Text>
-            <Textarea
-                error={props.form.errors.emails}
-                mt={8}
-                ref={emailListRef}
-                placeholder="Paste emails from excel"
-                autosize
-                maxRows={10}
-            />
+        <>
+            <Modal opened={modalOpened} onClose={() => setModalOpened(false)} title="Select Tags" size="md">
+                <MultiSelect
+                    data={tags.map((tag) => ({ value: tag.id.toString(), label: tag.name }))}
+                    value={selectedTags}
+                    onChange={setSelectedTags}
+                    placeholder="Select tags"
+                    label="Tags"
+                />
+                <Flex justify="flex-end" mt="md">
+                    <Button onClick={onTagSelectHandler}>Confirm</Button>
+                </Flex>
+            </Modal>
 
-            <Flex gap={8} mt={16} align={"center"}>
-                <Button onClick={onFilterHandler} loading={loading} mr={8}>
-                    Filter emails
-                </Button>
-                <IconMail size={24} color="gray" strokeWidth={1} />
-                <Text size="lg" c="dimmed">
-                    {props.filteredEmails.length}{" "}
-                </Text>
-            </Flex>
+            <Paper withBorder p="md">
+                <Text fw={700}>Select emails</Text>
+                <Textarea
+                    error={props.form.errors.emails}
+                    mt={8}
+                    ref={emailListRef}
+                    placeholder="Paste emails from excel"
+                    autosize
+                    maxRows={10}
+                />
 
-            {props.filteredEmails.length > 0 ? (
-                <>
-                    <Text fw={700} mt={16}>
-                        Filtered emails
+                <Flex gap={8} mt={16} align={"center"}>
+                    <Button onClick={onFilterHandler} loading={loading}>
+                        Filter emails
+                    </Button>
+                    <Button variant="light" onClick={() => setModalOpened(true)} leftSection={<IconTags size={16} />}>
+                        Select by tag
+                    </Button>
+                    <IconMail size={24} color="gray" strokeWidth={1} />
+                    <Text size="lg" c="dimmed">
+                        {props.filteredEmails.length}{" "}
                     </Text>
-                    <Flex gap={8} mt={8} wrap={"wrap"}>
-                        {props.filteredEmails.map((e) => (
-                            <Pill key={e}>{e}</Pill>
-                        ))}
-                    </Flex>
-                </>
-            ) : (
-                <Text mt={16} fs={"italic"} c={"dimmed"}>
-                    Filter some emails
-                </Text>
-            )}
-        </Paper>
+                </Flex>
+
+                {props.filteredEmails.length > 0 ? (
+                    <>
+                        <Text fw={700} mt={16}>
+                            Filtered emails
+                        </Text>
+                        <Flex gap={8} mt={8} wrap={"wrap"}>
+                            {props.filteredEmails.map((e) => (
+                                <Pill key={e}>{e}</Pill>
+                            ))}
+                        </Flex>
+                    </>
+                ) : (
+                    <Text mt={16} fs={"italic"} c={"dimmed"}>
+                        Filter some emails
+                    </Text>
+                )}
+            </Paper>
+        </>
     );
 }

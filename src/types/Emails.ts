@@ -36,9 +36,14 @@ export type EmailListTypes = "inbox" | "sent";
 
 export interface EmailSearch {
     id: number;
+    interest: null | number;
     email: string;
+    country: string | null;
     person_name: string | null;
+    person_position: string | null;
     company_name: string | null;
+    company_type: string | null;
+    tags: string;
 }
 
 export interface EmailMetadata {
