@@ -9,6 +9,7 @@ import {
     Flex,
     Image,
     Paper,
+    ScrollAreaAutosize,
     Select,
     SimpleGrid,
     Skeleton,
@@ -24,8 +25,9 @@ import { useEffect, useState } from "react";
 import "../../index.css";
 import IconVisitWebsite from "@/CustomIcons/IconVisitWebsite";
 import { Table } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
 import requests from "@/functions/Requests";
+import { countriesSelectData } from "@/functions/countriesSelectData";
+import { countries } from "countries-list";
 
 interface LinkCompanyForm {
     company_id: number | string;
@@ -41,6 +43,8 @@ interface EmailCompanyProps {
     company_logo: string | null;
     company_website: string;
     company_address: string | null;
+    company_country: string | null;
+    company_postal_code: string | null;
     onUpdate: () => void;
     navigateToEmail: (id: number) => void;
 }
@@ -56,13 +60,22 @@ export default function EditCompany({
     company_website,
     company_address,
     company_input_source,
+    company_country,
+    company_postal_code,
     navigateToEmail,
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const [allTags, setAllTags] = useState<Tag[]>([]);
     const inputSource = JSON.parse(company_input_source) as DecodedInputSource;
     const [linkedEmails, setLinkedEmails] = useState<EmailInfo[] | null>(null);
-    // const navigate = useNavigate();
+
+    let country = "";
+    if (company_country) {
+        const tmp = Object.entries(countries).find(([key, _item]) => key === company_country);
+        if (tmp) {
+            country = tmp[1].name;
+        }
+    }
 
     //#region edit company
     const [editModal, setEM] = useState<boolean>(false);
@@ -75,6 +88,8 @@ export default function EditCompany({
             logo_url: company_logo,
             company_website: company_website,
             address: company_address,
+            country: company_country,
+            postal_code: company_postal_code,
         },
 
         validate: {
@@ -126,6 +141,8 @@ export default function EditCompany({
             logo_url: null,
             company_website: "",
             address: null,
+            postal_code: null,
+            country: null,
         },
 
         validate: {
@@ -307,6 +324,23 @@ export default function EditCompany({
                             key={createForm.key("address")}
                             {...createForm.getInputProps("address")}
                         />
+
+                        <Select
+                            label="Country"
+                            placeholder="Select a country"
+                            searchable
+                            clearable
+                            data={countriesSelectData()}
+                            {...createForm.getInputProps("country")}
+                        />
+
+                        <TextInput
+                            label={"Postal code"}
+                            placeholder="Company postal code"
+                            key={createForm.key("postal_code")}
+                            {...createForm.getInputProps("postal_code")}
+                        />
+
                         <TagCombobox form={createForm} />
                     </Stack>
                 </ModalForm>
@@ -357,6 +391,24 @@ export default function EditCompany({
                             className={getInputSourceClass(inputSource.address)}
                         />
 
+                        <Select
+                            label="Country"
+                            placeholder="Select a country"
+                            searchable
+                            clearable
+                            data={countriesSelectData()}
+                            {...editForm.getInputProps("country")}
+                            className={getInputSourceClass(inputSource.country)}
+                        />
+
+                        <TextInput
+                            label={"Postal code"}
+                            placeholder="Company postal code"
+                            key={editForm.key("postal_code")}
+                            {...editForm.getInputProps("postal_code")}
+                            className={getInputSourceClass(inputSource.postal_code)}
+                        />
+
                         <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
                     </Stack>
                 </ModalForm>
@@ -395,7 +447,6 @@ export default function EditCompany({
 
                 <SimpleGrid cols={3} mt={8}>
                     <TextInput label="Company Name" value={company_name} disabled />
-
                     <TextInput label="Company type" value={company_type} disabled />
                     <TextInput
                         label={"Tags"}
@@ -403,40 +454,47 @@ export default function EditCompany({
                         value={company_tags.map((id) => getTagName(id)).join(", ")}
                         disabled
                     />
+                    <TextInput label="Address" value={company_address || ""} disabled />
+                    <TextInput label="Country" value={country} disabled />
+                    <TextInput label="Postal code" value={company_postal_code || ""} disabled />
                 </SimpleGrid>
 
                 {!linkedEmails ? (
                     <Skeleton w={"100%"} h={150} mt={8} />
                 ) : (
-                    <Table highlightOnHover mt={8}>
-                        <Table.Thead>
-                            <Table.Tr>
-                                <Table.Th>Email</Table.Th>
-                                <Table.Th>Person Name</Table.Th>
-                                <Table.Th>Position</Table.Th>
-                                <Table.Th>Country</Table.Th>
-                                <Table.Th>Interest</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                            {linkedEmails.map((email) => (
-                                <Table.Tr
-                                    key={email.id}
-                                    onClick={() => navigateToEmail(email.id)}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    <Table.Td>{email.email}</Table.Td>
-                                    <Table.Td>{email.person_name || "-"}</Table.Td>
-                                    <Table.Td>{email.person_position || "-"}</Table.Td>
-                                    <Table.Td>{email.country || "-"}</Table.Td>
-                                    <Table.Td>{email.interest || "-"}</Table.Td>
-                                </Table.Tr>
-                            ))}
-                        </Table.Tbody>
-                    </Table>
+                    linkedEmails.length > 1 && (
+                        <ScrollAreaAutosize mah={300} mt={16}>
+                            <Table highlightOnHover>
+                                <Table.Thead>
+                                    <Table.Tr>
+                                        <Table.Th>Email</Table.Th>
+                                        <Table.Th>Person Name</Table.Th>
+                                        <Table.Th>Position</Table.Th>
+                                        <Table.Th>Country</Table.Th>
+                                        <Table.Th>Interest</Table.Th>
+                                    </Table.Tr>
+                                </Table.Thead>
+                                <Table.Tbody>
+                                    {linkedEmails.map((email) => (
+                                        <Table.Tr
+                                            key={email.id}
+                                            onClick={() => navigateToEmail(email.id)}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <Table.Td>{email.email}</Table.Td>
+                                            <Table.Td>{email.person_name || "-"}</Table.Td>
+                                            <Table.Td>{email.person_position || "-"}</Table.Td>
+                                            <Table.Td>{email.country || "-"}</Table.Td>
+                                            <Table.Td>{email.interest || "-"}</Table.Td>
+                                        </Table.Tr>
+                                    ))}
+                                </Table.Tbody>
+                            </Table>
+                        </ScrollAreaAutosize>
+                    )
                 )}
 
-                <SimpleGrid cols={3} mt={16}>
+                <SimpleGrid cols={3} mt={20}>
                     <Button onClick={() => setCM(true)} variant="light" leftSection={<IconPlus />}>
                         Create company
                     </Button>

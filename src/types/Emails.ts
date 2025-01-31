@@ -61,6 +61,7 @@ export interface EmailInfo {
     recieved_email: number | null;
     input_source: string | null;
     country: string | null;
+    postal_code: string | null;
     phone_number: string | null;
     last_comment: string | null;
     last_checked: string | null;
@@ -75,6 +76,8 @@ export interface EmailMetadata {
     company_tags: number[];
     company_logo: string | null;
     company_website: string | null;
+    company_country: string | null;
+    company_postal_code: string | null;
     email: string;
     person_name: string | null;
     person_position: string | null;
@@ -96,5 +99,6 @@ export interface EmailMetadata {
     input_source: string;
     address: string | null;
     company_address: string | null;
+    postal_code: string | null;
     [key: string]: any;
 }

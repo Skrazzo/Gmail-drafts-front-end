@@ -1,11 +1,11 @@
 import { useForm } from "@mantine/form";
 import { Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
 import { DecodedInputSource, EmailMetadata } from "@/types";
-import { countries } from "countries-list";
 import TagCombobox from "@/components/ui/Tags/TagCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
 
 import moment from "moment";
+import { countriesSelectData } from "@/functions/countriesSelectData";
 
 interface EmailFormProps {
     initialData: EmailMetadata;
@@ -42,15 +42,6 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
         }
 
         onSubmit(form.getValues());
-    };
-
-    const countriesSelectData = () => {
-        return Object.entries(countries).map(([code, country]) => {
-            return {
-                value: code,
-                label: country.name,
-            };
-        });
     };
 
     return (
@@ -128,6 +119,14 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             {...form.getInputProps("address")}
                             disabled={isReadOnly("address")}
                             className={getInputSourceClass(inputSource.address)}
+                        />
+
+                        <TextInput
+                            label="Postal code"
+                            placeholder="Enter postal code"
+                            {...form.getInputProps("postal_code")}
+                            disabled={isReadOnly("postal_code")}
+                            className={getInputSourceClass(inputSource.postal_code)}
                         />
                     </SimpleGrid>
 

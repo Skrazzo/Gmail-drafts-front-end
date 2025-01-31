@@ -40,6 +40,7 @@ export function SubCategoryDisplay({ subCategory, type }: SubCategoryDisplayProp
             {(() => {
                 switch (type) {
                     case "email_info_update":
+                    case "company_created":
                     case "company_updated":
                         const data = JSON.parse(subCategory) as Record<string, string | null>;
                         return renderJsonGrid(data);
