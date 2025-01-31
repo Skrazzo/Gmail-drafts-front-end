@@ -1,8 +1,21 @@
 import { ModalForm } from "@/components/ui/ModalForm";
 import TagCombobox from "@/components/ui/Tags/TagCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
-import { AxiosResponse, CompanyExists, CompanyForm, DecodedInputSource, ListCompanies, Tag } from "@/types";
-import { Anchor, Button, Center, Flex, Image, Paper, Select, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
+import { AxiosResponse, CompanyExists, CompanyForm, DecodedInputSource, EmailInfo, ListCompanies, Tag } from "@/types";
+import {
+    Anchor,
+    Button,
+    Center,
+    Flex,
+    Image,
+    Paper,
+    Select,
+    SimpleGrid,
+    Skeleton,
+    Stack,
+    Text,
+    TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconLink, IconPencil, IconPlus } from "@tabler/icons-react";
@@ -10,6 +23,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import "../../index.css";
 import IconVisitWebsite from "@/CustomIcons/IconVisitWebsite";
+import { Table } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
+import requests from "@/functions/Requests";
 
 interface LinkCompanyForm {
     company_id: number | string;
@@ -26,6 +42,7 @@ interface EmailCompanyProps {
     company_website: string;
     company_address: string | null;
     onUpdate: () => void;
+    navigateToEmail: (id: number) => void;
 }
 
 export default function EditCompany({
@@ -39,10 +56,13 @@ export default function EditCompany({
     company_website,
     company_address,
     company_input_source,
+    navigateToEmail,
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const [allTags, setAllTags] = useState<Tag[]>([]);
     const inputSource = JSON.parse(company_input_source) as DecodedInputSource;
+    const [linkedEmails, setLinkedEmails] = useState<EmailInfo[] | null>(null);
+    // const navigate = useNavigate();
 
     //#region edit company
     const [editModal, setEM] = useState<boolean>(false);
@@ -218,6 +238,16 @@ export default function EditCompany({
         setAllTags(tags.data);
     };
 
+    const fetchLinkedEmails = async () => {
+        requests.get<EmailInfo[]>({
+            url: "/company/emails/get",
+            params: {
+                id: company_id,
+            },
+            success: (d) => setLinkedEmails(d),
+        });
+    };
+
     const getTagName = (id: number): string => {
         const match = allTags.filter((tag) => tag.id === id);
         if (match.length > 0) {
@@ -229,6 +259,7 @@ export default function EditCompany({
 
     useEffect(() => {
         fetchTags();
+        fetchLinkedEmails();
     }, []);
 
     return (
@@ -373,6 +404,37 @@ export default function EditCompany({
                         disabled
                     />
                 </SimpleGrid>
+
+                {!linkedEmails ? (
+                    <Skeleton w={"100%"} h={150} mt={8} />
+                ) : (
+                    <Table highlightOnHover mt={8}>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>Email</Table.Th>
+                                <Table.Th>Person Name</Table.Th>
+                                <Table.Th>Position</Table.Th>
+                                <Table.Th>Country</Table.Th>
+                                <Table.Th>Interest</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            {linkedEmails.map((email) => (
+                                <Table.Tr
+                                    key={email.id}
+                                    onClick={() => navigateToEmail(email.id)}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    <Table.Td>{email.email}</Table.Td>
+                                    <Table.Td>{email.person_name || "-"}</Table.Td>
+                                    <Table.Td>{email.person_position || "-"}</Table.Td>
+                                    <Table.Td>{email.country || "-"}</Table.Td>
+                                    <Table.Td>{email.interest || "-"}</Table.Td>
+                                </Table.Tr>
+                            ))}
+                        </Table.Tbody>
+                    </Table>
+                )}
 
                 <SimpleGrid cols={3} mt={16}>
                     <Button onClick={() => setCM(true)} variant="light" leftSection={<IconPlus />}>

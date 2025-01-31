@@ -89,6 +89,11 @@ export default function EditEmail() {
         navigate(0);
     }
 
+    function navigateToEmail(emailId: number): void {
+        navigate(`/email/${emailId}`);
+        navigate(0);
+    }
+
     if (id === undefined) {
         return <p>email id is not specified</p>;
     }
@@ -110,6 +115,7 @@ export default function EditEmail() {
                         company_address={emailData.company_address}
                         company_id={emailData.company_id}
                         company_input_source={emailData.company_input_source}
+                        navigateToEmail={navigateToEmail}
                     />
 
                     <EmailForm

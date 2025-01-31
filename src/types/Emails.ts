@@ -46,6 +46,26 @@ export interface EmailSearch {
     tags: string;
 }
 
+export interface EmailInfo {
+    id: number;
+    person_name: string | null;
+    person_position: string | null;
+    met_in_person: string | null;
+    interest: number | null;
+    address: string | null;
+    company_id: number | null;
+    tags: string | null;
+    email: string;
+    service: string | null;
+    sent_email: number | null;
+    recieved_email: number | null;
+    input_source: string | null;
+    country: string | null;
+    phone_number: string | null;
+    last_comment: string | null;
+    last_checked: string | null;
+}
+
 export interface EmailMetadata {
     id: number;
     company_id: number;

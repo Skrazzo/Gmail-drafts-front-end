@@ -2,6 +2,7 @@ import { AppShell, Burger, Flex, Group } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
     IconDatabase,
+    IconHistory,
     IconHourglassEmpty,
     IconLogout,
     IconMail,
@@ -46,6 +47,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     <NavbarItem link="/drafts/create" icon={<IconWriting />} text="Create drafts" />
                     <NavbarItem link="/drafts/queued" icon={<IconHourglassEmpty />} text="Queued drafts" />
                     <NavbarItem link="/data" icon={<IconDatabase />} text="Sync and export data" />
+                    <NavbarItem link="/actions/history" icon={<IconHistory />} text="See action history" />
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main>

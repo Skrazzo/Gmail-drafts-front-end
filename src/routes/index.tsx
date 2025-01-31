@@ -9,6 +9,7 @@ import CreateDrafts from "@/pages/CreateDrafts";
 import QueueDrafts from "@/pages/QueueDrafts";
 import SyncPage from "@/pages/SyncPage";
 import UnsubscribedPage from "@/pages/UnsubscribedPage";
+import ActionHistory from "../pages/ActionsHistory";
 
 export const AppRoutes = () => {
     const { user, loading } = useAuth();
@@ -81,6 +82,16 @@ export const AppRoutes = () => {
                     <ProtectedRoute>
                         <AppLayout>
                             <UnsubscribedPage />
+                        </AppLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/actions/history/"
+                element={
+                    <ProtectedRoute>
+                        <AppLayout>
+                            <ActionHistory />
                         </AppLayout>
                     </ProtectedRoute>
                 }

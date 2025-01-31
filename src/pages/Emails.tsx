@@ -46,7 +46,7 @@ export default function Emails() {
                 <Input placeholder="Search email, company and person name" onChange={(e) => setSQ(e.target.value)} />
             </Input.Wrapper>
 
-            <Table className="">
+            <Table highlightOnHover className="">
                 <Table.Tr>
                     <Table.Th>Int</Table.Th>
                     <Table.Th>Co</Table.Th>
