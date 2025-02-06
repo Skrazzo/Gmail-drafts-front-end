@@ -43,6 +43,7 @@ export interface EmailSearch {
     person_position: string | null;
     company_name: string | null;
     company_type: string | null;
+    primary: number | null;
     tags: string;
 }
 
@@ -65,6 +66,7 @@ export interface EmailInfo {
     phone_number: string | null;
     last_comment: string | null;
     last_checked: string | null;
+    primary: number | null;
 }
 
 export interface EmailMetadata {
@@ -78,6 +80,7 @@ export interface EmailMetadata {
     company_website: string | null;
     company_country: string | null;
     company_postal_code: string | null;
+    compant_social_media: string | null;
     email: string;
     person_name: string | null;
     person_position: string | null;
@@ -100,5 +103,6 @@ export interface EmailMetadata {
     address: string | null;
     company_address: string | null;
     postal_code: string | null;
+    primary: 0 | 1;
     [key: string]: any;
 }

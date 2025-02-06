@@ -1,5 +1,17 @@
 import { useForm } from "@mantine/form";
-import { Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
+import {
+    Button,
+    Checkbox,
+    Group,
+    NumberInput,
+    Paper,
+    Select,
+    SimpleGrid,
+    Stack,
+    Text,
+    Textarea,
+    TextInput,
+} from "@mantine/core";
 import { DecodedInputSource, EmailMetadata } from "@/types";
 import TagCombobox from "@/components/ui/Combobox/IdCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
@@ -132,6 +144,13 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             {...form.getInputProps("postal_code")}
                             disabled={isReadOnly("postal_code")}
                             className={getInputSourceClass(inputSource.postal_code)}
+                        />
+
+                        <Checkbox
+                            label="Primary email"
+                            size="md"
+                            disabled={isReadOnly("primary")}
+                            {...form.getInputProps("primary", { type: "checkbox" })}
                         />
                     </SimpleGrid>
 

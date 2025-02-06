@@ -28,6 +28,7 @@ import { Table } from "@mantine/core";
 import requests from "@/functions/Requests";
 import { countriesSelectData } from "@/functions/countriesSelectData";
 import { countries } from "countries-list";
+import CompanySocialMedia from "./CompanySocialMedia";
 
 interface LinkCompanyForm {
     company_id: number | string;
@@ -45,6 +46,7 @@ interface EmailCompanyProps {
     company_address: string | null;
     company_country: string | null;
     company_postal_code: string | null;
+    company_social_media: string | null;
     onUpdate: () => void;
     navigateToEmail: (id: number) => void;
 }
@@ -62,6 +64,7 @@ export default function EditCompany({
     company_input_source,
     company_country,
     company_postal_code,
+    company_social_media,
     navigateToEmail,
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -490,6 +493,7 @@ export default function EditCompany({
                                         <Table.Th>Position</Table.Th>
                                         <Table.Th>Country</Table.Th>
                                         <Table.Th>Interest</Table.Th>
+                                        <Table.Th>Primary</Table.Th>
                                     </Table.Tr>
                                 </Table.Thead>
                                 <Table.Tbody>
@@ -504,6 +508,7 @@ export default function EditCompany({
                                             <Table.Td>{email.person_position || "-"}</Table.Td>
                                             <Table.Td>{email.country || "-"}</Table.Td>
                                             <Table.Td>{email.interest || "-"}</Table.Td>
+                                            <Table.Td>{email.primary ? "Yes" : "-"}</Table.Td>
                                         </Table.Tr>
                                     ))}
                                 </Table.Tbody>
@@ -511,6 +516,8 @@ export default function EditCompany({
                         </ScrollAreaAutosize>
                     )
                 )}
+
+                <CompanySocialMedia socialMedia={company_social_media} companyId={company_id} />
 
                 <SimpleGrid cols={3} mt={20}>
                     <Button onClick={() => setCM(true)} variant="light" leftSection={<IconPlus />}>

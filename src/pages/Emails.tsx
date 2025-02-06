@@ -50,32 +50,25 @@ export default function Emails() {
                 <Table.Tr>
                     <Table.Th>Int</Table.Th>
                     <Table.Th>Co</Table.Th>
+                    <Table.Th>Pri</Table.Th>
                     <Table.Th>Name</Table.Th>
                     <Table.Th>Position</Table.Th>
                     <Table.Th>Email address</Table.Th>
                     <Table.Th>Tags</Table.Th>
                     <Table.Th>Company name</Table.Th>
-                    {/* <Table.Th>Company type</Table.Th> */}
                 </Table.Tr>
 
                 {list.map((item, idx) => (
                     <Table.Tr key={idx} onClick={() => navigateToEmail(item.id)}>
-                        <Table.Td>{item.interest}</Table.Td>
-                        <Table.Td>{item.country}</Table.Td>
-                        <Table.Td>{item.person_name}</Table.Td>
+                        <Table.Td>{item.interest || "-"}</Table.Td>
+                        <Table.Td>{item.country || "-"}</Table.Td>
+                        <Table.Td>{item.primary ? "Yes" : "-"}</Table.Td>
+                        <Table.Td>{item.person_name || "-"}</Table.Td>
 
-                        {/* <Table.Td
-                            className={classNames({
-                                "text-gray-300 italic": item.person_name === null ? true : false,
-                            })}
-                        >
-                            {item.person_name ? item.person_name : "No name"}
-                        </Table.Td> */}
-                        <Table.Td>{item.person_position}</Table.Td>
-                        <Table.Td>{item.email}</Table.Td>
-                        <Table.Td>{item.tags}</Table.Td>
-                        <Table.Td>{item.company_name}</Table.Td>
-                        {/* <Table.Td>{item.company_type}</Table.Td> */}
+                        <Table.Td>{item.person_position || "-"}</Table.Td>
+                        <Table.Td>{item.email || "-"}</Table.Td>
+                        <Table.Td>{item.tags || "-"}</Table.Td>
+                        <Table.Td>{item.company_name || "-"}</Table.Td>
                     </Table.Tr>
                 ))}
             </Table>

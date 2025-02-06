@@ -117,6 +117,7 @@ export default function EditEmail() {
                         company_input_source={emailData.company_input_source}
                         company_country={emailData.company_country}
                         company_postal_code={emailData.company_postal_code}
+                        company_social_media={emailData.company_social_media}
                         navigateToEmail={navigateToEmail}
                     />
 
