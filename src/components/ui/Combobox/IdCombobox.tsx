@@ -8,9 +8,20 @@ import { useEffect, useState } from "react";
 interface TagComboboxProps {
     form: UseFormReturnType<any>;
     className?: string;
+    label?: string;
+    error?: string | null;
+    baseUrl: string;
+    formColumn: string;
 }
 
-export default function TagCombobox({ form, className = "" }: TagComboboxProps) {
+export default function TagCombobox({
+    form,
+    className = "",
+    error,
+    label = "Tags",
+    baseUrl,
+    formColumn,
+}: TagComboboxProps) {
     const combobox = useCombobox({
         onDropdownClose: () => combobox.resetSelectedOption(),
         onDropdownOpen: () => combobox.updateSelectedOptionIndex("active"),
@@ -22,7 +33,7 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
 
     const fetchTags = async () => {
         setLoading(true);
-        const tags = (await axios.get<AxiosResponse<Tag[]>>("/tags/get")).data;
+        const tags = (await axios.get<AxiosResponse<Tag[]>>(`/${baseUrl}/get`)).data;
         if (!tags.success) {
             notifications.show({
                 title: "Error",
@@ -51,8 +62,9 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
     };
 
     const createTag = async (tagName: string) => {
-        const createRes = (await axios.post<AxiosResponse<Tag>>("/tags/create", null, { params: { name: tagName } }))
-            .data;
+        const createRes = (
+            await axios.post<AxiosResponse<Tag>>(`/${baseUrl}/create`, null, { params: { name: tagName } })
+        ).data;
 
         if (!createRes.success) {
             notifications.show({
@@ -84,24 +96,24 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
     };
 
     const handleValueRemove = (tagId: number) => {
-        const currentTags = form.values.tags;
-        form.setValues({ tags: currentTags.filter((id: number) => id !== tagId) });
+        const currentTags = form.values[formColumn];
+        form.setValues({ [formColumn]: currentTags.filter((id: number) => id !== tagId) });
     };
 
     const handleTagAdd = (tagId: number) => {
-        const currentTags = form.values.tags;
+        const currentTags = form.values[formColumn];
         if (currentTags.includes(tagId)) {
             // Check if tag is already added
             return;
         }
 
-        form.setValues({ tags: [...currentTags, tagId] });
+        form.setValues({ [formColumn]: [...currentTags, tagId] });
     };
 
     // Values are selected values that user has selected
     let values;
-    if (form.values.tags) {
-        values = form.values.tags.map((tagId: number) => (
+    if (form.values[formColumn]) {
+        values = form.values[formColumn].map((tagId: number) => (
             <Pill key={tagId} withRemoveButton onRemove={() => handleValueRemove(tagId)}>
                 {getTagName(tagId)}
             </Pill>
@@ -110,9 +122,10 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
 
     // Options are available options that user can click
     let options;
-    if (form.values.tags !== null || form.values.tags !== undefined) {
+    if (form.values[formColumn] !== null || form.values[formColumn] !== undefined) {
+        console.log(form.values[formColumn]);
         options = allTags
-            .filter((tag) => !form.values.tags.includes(tag.id))
+            .filter((tag) => !form.values[formColumn].includes(tag.id))
             .filter((tag) => tag.name.toLowerCase().includes(search.toLowerCase()))
             .map((tag) => (
                 <Combobox.Option value={tag.id.toString()} key={tag.name} onClick={() => handleTagAdd(tag.id)}>
@@ -125,7 +138,7 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
 
     return (
         <div className={className}>
-            <Text>Tags</Text>
+            <Text>{label}</Text>
             <Combobox store={combobox} onOptionSubmit={handleValueSelect} withinPortal={false}>
                 {loading ? (
                     <Paper withBorder h={36}>
@@ -148,7 +161,7 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
                                             setSearch(event.currentTarget.value);
                                         }}
                                         onKeyDown={(event) => {
-                                            const currentTags = form.values.tags;
+                                            const currentTags = form.values[formColumn];
 
                                             if (event.key === "Backspace" && search.length === 0) {
                                                 event.preventDefault();
@@ -160,6 +173,11 @@ export default function TagCombobox({ form, className = "" }: TagComboboxProps) 
                             </Pill.Group>
                         </PillsInput>
                     </Combobox.DropdownTarget>
+                )}
+                {error && (
+                    <Text c={"red"} size="xs" mt={4}>
+                        {error}
+                    </Text>
                 )}
 
                 {options && (

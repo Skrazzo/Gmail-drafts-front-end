@@ -1,6 +1,6 @@
 export interface CompanyForm {
     name: string;
-    type: string;
+    type: number[];
     tags: number[];
     logo_url: string | null;
     company_website: string;

@@ -1,7 +1,7 @@
 import { useForm } from "@mantine/form";
 import { Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, Text, Textarea, TextInput } from "@mantine/core";
 import { DecodedInputSource, EmailMetadata } from "@/types";
-import TagCombobox from "@/components/ui/Tags/TagCombobox";
+import TagCombobox from "@/components/ui/Combobox/IdCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
 
 import moment from "moment";
@@ -52,7 +52,12 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                         {/* Contact Information */}
                         <TextInput label="Email" {...form.getInputProps("email")} disabled={isReadOnly("email")} />
 
-                        <TagCombobox form={form} className={getInputSourceClass(inputSource.tags, true)} />
+                        <TagCombobox
+                            baseUrl="tags"
+                            formColumn="tags"
+                            form={form}
+                            className={getInputSourceClass(inputSource.tags, true)}
+                        />
 
                         <TextInput
                             label="Person Name"

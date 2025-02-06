@@ -1,7 +1,7 @@
 import { ModalForm } from "@/components/ui/ModalForm";
-import TagCombobox from "@/components/ui/Tags/TagCombobox";
+import TagCombobox from "@/components/ui/Combobox/IdCombobox";
 import getInputSourceClass from "@/functions/getInputSourceClass";
-import { AxiosResponse, CompanyExists, CompanyForm, DecodedInputSource, EmailInfo, ListCompanies, Tag } from "@/types";
+import { CompanyExists, CompanyForm, DecodedInputSource, EmailInfo, ListCompanies, Tag } from "@/types";
 import {
     Anchor,
     Button,
@@ -37,7 +37,7 @@ interface EmailCompanyProps {
     email_id: number;
     company_id: number;
     company_name: string;
-    company_type: string;
+    company_type: number[];
     company_tags: number[];
     company_input_source: string;
     company_logo: string | null;
@@ -66,6 +66,7 @@ export default function EditCompany({
 }: EmailCompanyProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const [allTags, setAllTags] = useState<Tag[]>([]);
+    const [allTypes, setAllTypes] = useState<Tag[]>([]);
     const inputSource = JSON.parse(company_input_source) as DecodedInputSource;
     const [linkedEmails, setLinkedEmails] = useState<EmailInfo[] | null>(null);
 
@@ -94,7 +95,7 @@ export default function EditCompany({
 
         validate: {
             name: (e) => (e.length < 4 ? "Name is too short" : null),
-            type: (e) => (e.length < 4 ? "Type is too short" : null),
+            type: (e) => (e.length < 1 ? "Type is too short" : null),
             logo_url: (e) =>
                 e?.toString() === undefined || e === "" ? null : e.includes("https://") ? null : "Invalid URL",
             company_website: (e) => (e === "" ? null : e.includes("https://") ? null : "Invalid URL"),
@@ -136,7 +137,7 @@ export default function EditCompany({
     const createForm = useForm<CompanyForm>({
         initialValues: {
             name: "",
-            type: "company",
+            type: [],
             tags: [],
             logo_url: null,
             company_website: "",
@@ -147,7 +148,7 @@ export default function EditCompany({
 
         validate: {
             name: (e) => (e.length < 4 ? "Name is too short" : null),
-            type: (e) => (e.length < 4 ? "Type is too short" : null),
+            type: (e) => (e.length < 1 ? "You need at least one type" : null),
             logo_url: (e) =>
                 e?.toString() === undefined || e === "" ? null : e.includes("https://") ? null : "Invalid URL",
             company_website: (e) => (e === "" ? null : e.includes("https://") ? null : "Invalid URL"),
@@ -241,18 +242,12 @@ export default function EditCompany({
     //#endregion
 
     const fetchTags = async () => {
-        const tags = (await axios.get<AxiosResponse<Tag[]>>("/tags/get")).data;
-        if (!tags.success) {
-            notifications.show({
-                title: "Error",
-                message: "while fetching all tags: " + tags.error,
-                color: "red",
-            });
-            console.error(tags.error);
-            return;
-        }
-
-        setAllTags(tags.data);
+        requests.get<Tag[]>({
+            url: "/tags/get",
+            success(tags) {
+                setAllTags(tags);
+            },
+        });
     };
 
     const fetchLinkedEmails = async () => {
@@ -265,8 +260,17 @@ export default function EditCompany({
         });
     };
 
-    const getTagName = (id: number): string => {
-        const match = allTags.filter((tag) => tag.id === id);
+    const fetchTypes = async () => {
+        requests.get<Tag[]>({
+            url: "/types/get",
+            success(data) {
+                setAllTypes(data);
+            },
+        });
+    };
+
+    const getTagName = (data: Tag[], id: number): string => {
+        const match = data.filter((tag) => tag.id === id);
         if (match.length > 0) {
             return match[0].name;
         } else {
@@ -276,6 +280,7 @@ export default function EditCompany({
 
     useEffect(() => {
         fetchTags();
+        fetchTypes();
         fetchLinkedEmails();
     }, []);
 
@@ -297,11 +302,13 @@ export default function EditCompany({
                             key={createForm.key("name")}
                             {...createForm.getInputProps("name")}
                         />
-                        <TextInput
-                            label={"Type"}
-                            placeholder="Company type"
-                            key={createForm.key("type")}
-                            {...createForm.getInputProps("type")}
+
+                        <TagCombobox
+                            error={createForm.errors.type?.toString()}
+                            label="Types"
+                            form={createForm}
+                            baseUrl="types"
+                            formColumn="type"
                         />
 
                         <TextInput
@@ -341,7 +348,7 @@ export default function EditCompany({
                             {...createForm.getInputProps("postal_code")}
                         />
 
-                        <TagCombobox form={createForm} />
+                        <TagCombobox form={createForm} baseUrl="tags" formColumn="tags" />
                     </Stack>
                 </ModalForm>
 
@@ -360,12 +367,14 @@ export default function EditCompany({
                             {...editForm.getInputProps("name")}
                             className={getInputSourceClass(inputSource.name)}
                         />
-                        <TextInput
-                            label={"Type"}
-                            placeholder="Company type"
-                            key={editForm.key("type")}
-                            {...editForm.getInputProps("type")}
-                            className={getInputSourceClass(inputSource.type)}
+
+                        <TagCombobox
+                            error={editForm.errors.type?.toString()}
+                            label="Types"
+                            form={editForm}
+                            baseUrl="types"
+                            formColumn="type"
+                            className={getInputSourceClass(inputSource.type_id, true)}
                         />
 
                         <TextInput
@@ -409,7 +418,12 @@ export default function EditCompany({
                             className={getInputSourceClass(inputSource.postal_code)}
                         />
 
-                        <TagCombobox form={editForm} className={getInputSourceClass(inputSource.tags, true)} />
+                        <TagCombobox
+                            form={editForm}
+                            className={getInputSourceClass(inputSource.tags, true)}
+                            baseUrl="tags"
+                            formColumn="tags"
+                        />
                     </Stack>
                 </ModalForm>
 
@@ -447,11 +461,15 @@ export default function EditCompany({
 
                 <SimpleGrid cols={3} mt={8}>
                     <TextInput label="Company Name" value={company_name} disabled />
-                    <TextInput label="Company type" value={company_type} disabled />
+                    <TextInput
+                        label="Company type"
+                        value={company_type.map((id) => getTagName(allTypes, id)).join(", ")}
+                        disabled
+                    />
                     <TextInput
                         label={"Tags"}
                         placeholder="No tags"
-                        value={company_tags.map((id) => getTagName(id)).join(", ")}
+                        value={company_tags.map((id) => getTagName(allTags, id)).join(", ")}
                         disabled
                     />
                     <TextInput label="Address" value={company_address || ""} disabled />
