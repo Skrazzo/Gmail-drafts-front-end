@@ -1,4 +1,4 @@
-import { Anchor, Flex, Group, Paper, Stack, Text } from "@mantine/core";
+import { Anchor, Flex, Paper, Text } from "@mantine/core";
 import EditSocialMedia from "./EditSocialMedia";
 
 interface Props {
@@ -26,7 +26,7 @@ export default function CompanySocialMedia(props: Props) {
                         <Text c="dimmed">{platform}:</Text>
                         {value.startsWith("http") ? (
                             <Anchor href={value} target="_blank">
-                                {value}
+                                Link to {platform}
                             </Anchor>
                         ) : (
                             <Text>{value}</Text>
