@@ -1,9 +1,10 @@
-import { AvailableFromEmails, DraftForm } from "@/types";
-import { Input, Paper, Select, Text } from "@mantine/core";
+import { AvailableFromEmails, DraftForm, Tag } from "@/types";
+import { ComboboxData, Group, Input, Paper, Select, Text } from "@mantine/core";
 import { UseFormReturnType } from "@mantine/form";
 import RichEditor from "../RichEditor";
-import { ReactElement } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import FileSelect from "../FileSelect";
+import requests from "@/functions/Requests";
 
 interface EmailContentProps {
     form: UseFormReturnType<DraftForm>;
@@ -11,9 +12,19 @@ interface EmailContentProps {
 }
 
 export default function EmailContent(props: EmailContentProps): ReactElement {
+    const [markTags, setMarkTags] = useState<ComboboxData | undefined>();
     function richChangeHandler(html: string) {
         props.form.setValues({ body: html });
     }
+
+    useEffect(() => {
+        requests.get<Tag[]>({
+            url: "/tags/get",
+            success: (data) => {
+                setMarkTags(data.map((tag) => ({ label: tag.name, value: tag.name })));
+            },
+        });
+    }, []);
 
     return (
         <>
@@ -31,7 +42,16 @@ export default function EmailContent(props: EmailContentProps): ReactElement {
                     {...props.form.getInputProps("email_from")}
                 />
 
-                <Input my={8} placeholder="Email subject" {...props.form.getInputProps("subject")} />
+                <Group grow gap={8}>
+                    <Input my={8} placeholder="Email subject" {...props.form.getInputProps("subject")} />
+
+                    <Select
+                        {...props.form.getInputProps("mark_tag")}
+                        searchable
+                        placeholder="Select tag to mark these emails"
+                        data={markTags}
+                    />
+                </Group>
 
                 <RichEditor value={props.form.values.body} onChange={richChangeHandler} />
                 <FileSelect

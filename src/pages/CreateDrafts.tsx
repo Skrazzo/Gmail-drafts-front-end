@@ -18,6 +18,7 @@ export default function CreateDrafts() {
             email_from: "me",
             body: "<p></p>",
             attachments: null,
+            mark_tag: "",
             bodyTemplate: null,
             signatureTemplate: null,
             emails: [],

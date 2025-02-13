@@ -1,21 +1,29 @@
 import { EmailSearch } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Input, Table, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 
 export default function Emails() {
     const [list, setList] = useState<EmailSearch[]>([]);
+    const [displayedList, setDisplayedList] = useState<EmailSearch[]>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const firstRender = useRef(true);
-    const navigate = useNavigate();
+    const BATCH_SIZE = 50;
 
     const fetchList = async () => {
         const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery } });
         setList(tmp.data);
+        setDisplayedList(tmp.data.slice(0, BATCH_SIZE));
+        setCurrentIndex(BATCH_SIZE);
     };
 
-    const navigateToEmail = (id: number) => {
-        navigate("/email/" + id);
+    const loadMore = () => {
+        if (currentIndex >= list.length) return;
+
+        const nextIndex = currentIndex + BATCH_SIZE;
+        setDisplayedList([...displayedList, ...list.slice(currentIndex, nextIndex)]);
+        setCurrentIndex(nextIndex);
     };
 
     useEffect(() => {
@@ -58,20 +66,61 @@ export default function Emails() {
                     <Table.Th>Company name</Table.Th>
                 </Table.Tr>
 
-                {list.map((item, idx) => (
-                    <Table.Tr key={idx} onClick={() => navigateToEmail(item.id)}>
-                        <Table.Td>{item.interest || "-"}</Table.Td>
-                        <Table.Td>{item.country || "-"}</Table.Td>
-                        <Table.Td>{item.primary ? "Yes" : "-"}</Table.Td>
-                        <Table.Td>{item.person_name || "-"}</Table.Td>
-
-                        <Table.Td>{item.person_position || "-"}</Table.Td>
-                        <Table.Td>{item.email || "-"}</Table.Td>
-                        <Table.Td>{item.tags || "-"}</Table.Td>
-                        <Table.Td>{item.company_name || "-"}</Table.Td>
-                    </Table.Tr>
-                ))}
+                <TableRows list={displayedList} onBottomReach={loadMore} />
             </Table>
         </>
     );
 }
+
+const TableRows = React.memo(function TableRows({
+    list,
+    onBottomReach,
+}: {
+    list: EmailSearch[];
+    onBottomReach: () => void;
+}): JSX.Element {
+    const navigate = useNavigate();
+    const lastRowRef = useRef<HTMLTableRowElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    onBottomReach();
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        if (lastRowRef.current) {
+            observer.observe(lastRowRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [list]);
+
+    const navigateToEmail = (id: number) => {
+        navigate("/email/" + id);
+    };
+
+    return (
+        <>
+            {list.map((item, idx) => (
+                <Table.Tr
+                    key={idx}
+                    onClick={() => navigateToEmail(item.id)}
+                    ref={idx === list.length - 1 ? lastRowRef : null}
+                >
+                    <Table.Td>{item.interest || "-"}</Table.Td>
+                    <Table.Td>{item.country || "-"}</Table.Td>
+                    <Table.Td>{item.primary ? "Yes" : "-"}</Table.Td>
+                    <Table.Td>{item.person_name || "-"}</Table.Td>
+                    <Table.Td>{item.person_position || "-"}</Table.Td>
+                    <Table.Td>{item.email || "-"}</Table.Td>
+                    <Table.Td>{item.tags || "-"}</Table.Td>
+                    <Table.Td>{item.company_name || "-"}</Table.Td>
+                </Table.Tr>
+            ))}
+        </>
+    );
+});

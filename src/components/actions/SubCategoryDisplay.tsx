@@ -44,6 +44,9 @@ export function SubCategoryDisplay({ subCategory, type }: SubCategoryDisplayProp
                     case "company_updated":
                         const data = JSON.parse(subCategory) as Record<string, string | null>;
                         return renderJsonGrid(data);
+                    case "cleaned_tags":
+                    case "cleaned_types":
+                    case "cleaned_companies":
                     case "queue":
                         const queueData = JSON.parse(subCategory) as string[];
                         return renderArrayFlex(queueData);

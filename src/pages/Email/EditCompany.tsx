@@ -453,7 +453,11 @@ export default function EditCompany({
                 <Flex align={"center"} gap={16}>
                     <Text fw={700}>Edit Company</Text>
                     {company_website && (
-                        <Anchor href={company_website} target="_blank" rel="noopener noreferrer">
+                        <Anchor
+                            href={company_website.startsWith("http") ? company_website : `http://${company_website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             <Flex gap={8} align={"center"}>
                                 <IconVisitWebsite />
                                 <Text>Open website</Text>
