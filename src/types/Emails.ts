@@ -41,10 +41,14 @@ export interface EmailSearch {
     country: string | null;
     person_name: string | null;
     person_position: string | null;
+    company_id: string | null;
     company_name: string | null;
     company_type: string | null;
+    company_tags: string | null;
     primary: number | null;
     tags: string;
+    tags_id: string | null;
+    last_communication_date: string | null;
 }
 
 export interface EmailInfo {

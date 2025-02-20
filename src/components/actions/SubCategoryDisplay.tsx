@@ -48,6 +48,8 @@ export function SubCategoryDisplay({ subCategory, type }: SubCategoryDisplayProp
                     case "cleaned_types":
                     case "cleaned_companies":
                     case "separated_mailboxes":
+                    case "added_tracker_tags":
+                    case "linked_cc_emails":
                     case "queue":
                         const queueData = JSON.parse(subCategory) as string[];
                         return renderArrayFlex(queueData);

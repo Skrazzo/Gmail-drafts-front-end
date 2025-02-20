@@ -10,7 +10,9 @@ export interface ActionHistory {
         | "cleaned_companies"
         | "cleaned_types"
         | "cleaned_tags"
+        | "added_tracker_tags"
         | "separated_mailboxes"
+        | "linked_cc_emails"
         | null;
     sub_category: string | null;
     created_at: string | null;

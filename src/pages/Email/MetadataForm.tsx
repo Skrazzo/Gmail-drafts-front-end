@@ -68,7 +68,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             baseUrl="tags"
                             formColumn="tags"
                             form={form}
-                            className={getInputSourceClass(inputSource.tags, true)}
+                            className={getInputSourceClass(inputSource?.tags, true)}
                         />
 
                         <TextInput
@@ -76,7 +76,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             placeholder="Enter person name"
                             {...form.getInputProps("person_name")}
                             disabled={isReadOnly("person_name")}
-                            className={getInputSourceClass(inputSource.person_name)}
+                            className={getInputSourceClass(inputSource?.person_name)}
                         />
 
                         <TextInput
@@ -84,7 +84,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             placeholder="Enter person position"
                             {...form.getInputProps("person_position")}
                             disabled={isReadOnly("person_position")}
-                            className={getInputSourceClass(inputSource.person_position)}
+                            className={getInputSourceClass(inputSource?.person_position)}
                         />
 
                         <Select
@@ -94,7 +94,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             data={countriesSelectData()}
                             {...form.getInputProps("country")}
                             disabled={isReadOnly("country")}
-                            className={getInputSourceClass(inputSource.country)}
+                            className={getInputSourceClass(inputSource?.country)}
                         />
 
                         <TextInput
@@ -102,7 +102,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             placeholder="Enter phone number"
                             {...form.getInputProps("phone_number")}
                             disabled={isReadOnly("phone_number")}
-                            className={getInputSourceClass(inputSource.phone_number)}
+                            className={getInputSourceClass(inputSource?.phone_number)}
                         />
 
                         {/* Additional Information */}
@@ -117,7 +117,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             {...form.getInputProps("met_in_person")}
                             disabled={isReadOnly("met_in_person")}
                             clearable
-                            className={getInputSourceClass(inputSource.met_in_person)}
+                            className={getInputSourceClass(inputSource?.met_in_person)}
                         />
 
                         <NumberInput
@@ -127,7 +127,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             max={10}
                             {...form.getInputProps("interest")}
                             disabled={isReadOnly("interest")}
-                            className={getInputSourceClass(inputSource.interest)}
+                            className={getInputSourceClass(inputSource?.interest)}
                         />
 
                         <TextInput
@@ -135,7 +135,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             placeholder="Enter address"
                             {...form.getInputProps("address")}
                             disabled={isReadOnly("address")}
-                            className={getInputSourceClass(inputSource.address)}
+                            className={getInputSourceClass(inputSource?.address)}
                         />
 
                         <TextInput
@@ -143,7 +143,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                             placeholder="Enter postal code"
                             {...form.getInputProps("postal_code")}
                             disabled={isReadOnly("postal_code")}
-                            className={getInputSourceClass(inputSource.postal_code)}
+                            className={getInputSourceClass(inputSource?.postal_code)}
                         />
 
                         <Checkbox
@@ -160,7 +160,7 @@ export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailF
                         minRows={3}
                         {...form.getInputProps("last_comment")}
                         disabled={isReadOnly("last_comment")}
-                        className={getInputSourceClass(inputSource.last_comment)}
+                        className={getInputSourceClass(inputSource?.last_comment)}
                     />
 
                     {/* Recent Email Details - Read Only */}

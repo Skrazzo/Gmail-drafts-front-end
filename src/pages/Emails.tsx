@@ -1,21 +1,45 @@
 import { EmailSearch } from "@/types";
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Input, Table, Title } from "@mantine/core";
+import {
+    ActionIcon,
+    Button,
+    CopyButton,
+    Flex,
+    Input,
+    Loader,
+    Skeleton,
+    Table,
+    Text,
+    Title,
+    Tooltip,
+} from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import AdvancedSearchModal from "./Email/AdvancedSearchModal";
+import SearchParamsHelper from "@/helpers/SearchParamsHelper";
+import { AdvancedFilter } from "@/functions/AdvancedFilter";
+import { IconCheck, IconCopy, IconMail } from "@tabler/icons-react";
 
 export default function Emails() {
+    const params = new SearchParamsHelper();
+    const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false);
     const [list, setList] = useState<EmailSearch[]>([]);
     const [displayedList, setDisplayedList] = useState<EmailSearch[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const firstRender = useRef(true);
+    const [loading, setLoading] = useState<boolean>(true);
     const BATCH_SIZE = 50;
 
     const fetchList = async () => {
+        setLoading(true);
         const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery } });
-        setList(tmp.data);
-        setDisplayedList(tmp.data.slice(0, BATCH_SIZE));
+
+        const filtered = AdvancedFilter(tmp.data, params);
+
+        setList(filtered);
+        setDisplayedList(filtered.slice(0, BATCH_SIZE));
         setCurrentIndex(BATCH_SIZE);
+        setLoading(false);
     };
 
     const loadMore = () => {
@@ -34,12 +58,14 @@ export default function Emails() {
             });
     }, []);
 
-    const [searchQuery, setSQ] = useState<string>("");
+    const [searchQuery, setSQ] = useState<string>(params.get("q") || "");
     useEffect(() => {
         if (firstRender.current) return;
 
         const t = setTimeout(() => {
             fetchList();
+            params.set("q", searchQuery);
+            // setSearchParams({ q: searchQuery });
         }, 1000);
 
         return () => {
@@ -49,10 +75,40 @@ export default function Emails() {
 
     return (
         <>
-            <Title>Email list</Title>
-            <Input.Wrapper label="Search input" my={16}>
-                <Input placeholder="Search email, company and person name" onChange={(e) => setSQ(e.target.value)} />
-            </Input.Wrapper>
+            <AdvancedSearchModal
+                searchEmails={fetchList}
+                opened={advancedSearchOpen}
+                close={() => setAdvancedSearchOpen(false)}
+            />
+            <Flex align={"center"} gap={8}>
+                <Title mr={16}>Email list</Title>
+                <IconMail color="gray" stroke={1.25} />
+                <Text fw={"bold"} size="lg" c="dimmed">
+                    {list.length}
+                </Text>
+
+                <CopyButton value={list.map((e) => e.email).join("\n")} timeout={2000}>
+                    {({ copied, copy }) => (
+                        <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
+                            <ActionIcon color={copied ? "teal" : "gray"} variant="subtle" onClick={copy}>
+                                {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                            </ActionIcon>
+                        </Tooltip>
+                    )}
+                </CopyButton>
+            </Flex>
+            <Flex my={16} gap={8}>
+                <Input.Wrapper label="Search input" flex={1}>
+                    <Input
+                        value={searchQuery}
+                        placeholder="Search email, company and person name"
+                        onChange={(e) => setSQ(e.target.value)}
+                    />
+                </Input.Wrapper>
+                <Flex direction={"column"} justify={"end"}>
+                    <Button onClick={() => setAdvancedSearchOpen(true)}>Advanced filters</Button>
+                </Flex>
+            </Flex>
 
             <Table highlightOnHover className="">
                 <Table.Tr>
@@ -66,7 +122,7 @@ export default function Emails() {
                     <Table.Th>Company name</Table.Th>
                 </Table.Tr>
 
-                <TableRows list={displayedList} onBottomReach={loadMore} />
+                {loading ? <Loader m={16} /> : <TableRows list={displayedList} onBottomReach={loadMore} />}
             </Table>
         </>
     );
