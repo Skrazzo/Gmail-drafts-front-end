@@ -1,6 +1,6 @@
 import SearchParamsHelper from "@/helpers/SearchParamsHelper";
 import { Button, Flex, Group, Modal, MultiSelect, Radio, Skeleton, Stack, Text } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useIdsHelper from "@/hooks/useIdsHelper";
 import type { IdsHelper } from "@/hooks/useIdsHelper";
 import StackRow from "@/components/ui/StackRow";
