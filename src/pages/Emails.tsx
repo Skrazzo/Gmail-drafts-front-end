@@ -1,24 +1,13 @@
 import { EmailSearch } from "@/types";
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import {
-    ActionIcon,
-    Button,
-    CopyButton,
-    Flex,
-    Input,
-    Loader,
-    Skeleton,
-    Table,
-    Text,
-    Title,
-    Tooltip,
-} from "@mantine/core";
+import { ActionIcon, Button, CopyButton, Flex, Input, Loader, Table, Text, Title, Tooltip } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import AdvancedSearchModal from "./Email/AdvancedSearchModal";
 import SearchParamsHelper from "@/helpers/SearchParamsHelper";
 import { AdvancedFilter } from "@/functions/AdvancedFilter";
 import { IconCheck, IconCopy, IconMail } from "@tabler/icons-react";
+import dayjs from "dayjs";
 
 export default function Emails() {
     const params = new SearchParamsHelper();
@@ -120,6 +109,7 @@ export default function Emails() {
                     <Table.Th>Email address</Table.Th>
                     <Table.Th>Tags</Table.Th>
                     <Table.Th>Company name</Table.Th>
+                    <Table.Th>Last com</Table.Th>
                 </Table.Tr>
 
                 {loading ? <Loader m={16} /> : <TableRows list={displayedList} onBottomReach={loadMore} />}
@@ -175,6 +165,9 @@ const TableRows = React.memo(function TableRows({
                     <Table.Td>{item.email || "-"}</Table.Td>
                     <Table.Td>{item.tags || "-"}</Table.Td>
                     <Table.Td>{item.company_name || "-"}</Table.Td>
+                    <Table.Td>
+                        {item.last_communication_date ? dayjs(item.last_communication_date).format("MMM DD, YY") : "-"}
+                    </Table.Td>
                 </Table.Tr>
             ))}
         </>
