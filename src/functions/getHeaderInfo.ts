@@ -7,11 +7,8 @@ import { EmailHeaderInfo } from "@/types/Emails";
  * @param {string} name - Name of header to find
  * @return {string | null} Value of the header, or null if not found
  */
-export function getHeaderInfo(
-	headers: EmailHeaderInfo[],
-	name: string,
-): string | null {
-	let tmp = headers.find((h) => h.name.toLowerCase() === name.toLowerCase()); // Find header
-	if (tmp === undefined) return null; // If not found, return null
-	return tmp.value || null; // If found, return value, otherwise null
+export function getHeaderInfo(headers: EmailHeaderInfo[], name: string): string | null {
+    let tmp = headers.find((h) => h.name.toLowerCase() === name.toLowerCase()); // Find header
+    if (tmp === undefined) return null; // If not found, return null
+    return tmp.value || null; // If found, return value, otherwise null
 }

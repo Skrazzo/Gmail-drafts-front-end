@@ -46,7 +46,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     <NavbarItem link="/unsubscribed/" icon={<IconMailCancel />} text="Unsubscribed emails" />
                     <NavbarItem link="/drafts/create" icon={<IconWriting />} text="Create drafts" />
                     <NavbarItem link="/drafts/queued" icon={<IconHourglassEmpty />} text="Queued drafts" />
-                    <NavbarItem link="/data" icon={<IconDatabase />} text="Sync and export data" />
+                    <NavbarItem link="/data" icon={<IconDatabase />} text="Sync" />
                     <NavbarItem link="/actions/history" icon={<IconHistory />} text="See action history" />
                 </Flex>
             </AppShell.Navbar>

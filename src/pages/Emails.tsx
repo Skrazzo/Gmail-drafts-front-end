@@ -8,6 +8,9 @@ import SearchParamsHelper from "@/helpers/SearchParamsHelper";
 import { AdvancedFilter } from "@/functions/AdvancedFilter";
 import { IconCheck, IconCopy, IconMail } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import IconExport from "@/CustomIcons/IconExport";
+import Requests from "@/functions/Requests";
+import { notifications } from "@mantine/notifications";
 
 export default function Emails() {
     const params = new SearchParamsHelper();
@@ -62,6 +65,20 @@ export default function Emails() {
         };
     }, [searchQuery]);
 
+    const onExportSubmitHandler = () => {
+        Requests.post<string>({
+            url: "/create/export",
+            data: { emails: list.map((e) => e.email) },
+            success(_data) {
+                notifications.show({
+                    title: "Export creating",
+                    message: "Export will be send to your info@cuentosconvalor.es when its finished",
+                    color: "green",
+                });
+            },
+        });
+    };
+
     return (
         <>
             <AdvancedSearchModal
@@ -71,20 +88,26 @@ export default function Emails() {
             />
             <Flex align={"center"} gap={8}>
                 <Title mr={16}>Email list</Title>
-                <IconMail color="gray" stroke={1.25} />
-                <Text fw={"bold"} size="lg" c="dimmed">
+                <IconMail color="gray" stroke={1.25} size={20} />
+                <Text fw={"bold"} size="lg" mr={8} c="dimmed">
                     {list.length}
                 </Text>
 
                 <CopyButton value={list.map((e) => e.email).join("\n")} timeout={2000}>
                     {({ copied, copy }) => (
-                        <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
+                        <Tooltip label={copied ? "Copied" : "Copy"} withArrow>
                             <ActionIcon color={copied ? "teal" : "gray"} variant="subtle" onClick={copy}>
                                 {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                             </ActionIcon>
                         </Tooltip>
                     )}
                 </CopyButton>
+
+                <Tooltip label={"Export emails"} withArrow>
+                    <ActionIcon size={"sm"} variant="subtle" color="gray" onClick={onExportSubmitHandler}>
+                        <IconExport />
+                    </ActionIcon>
+                </Tooltip>
             </Flex>
             <Flex my={16} gap={8}>
                 <Input.Wrapper label="Search input" flex={1}>

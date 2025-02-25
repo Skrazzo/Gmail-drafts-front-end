@@ -13,15 +13,15 @@ import moment from "moment";
  * @return {string} Formatted date string
  */
 export function formatEmailListDate(date: string | null): string {
-	if (date === null) return moment().format("D MMM");
-	let momentDate = moment(date);
+    if (date === null) return moment().format("D MMM");
+    let momentDate = moment(date);
 
-	// Check if its today
-	console.log(momentDate.format("H:mm"));
-	if (momentDate.diff(moment(), "days") === 0) {
-		return momentDate.format("H:mm");
-	}
-	return momentDate.format("D MMM");
+    // Check if its today
+    console.log(momentDate.format("H:mm"));
+    if (momentDate.diff(moment(), "days") === 0) {
+        return momentDate.format("H:mm");
+    }
+    return momentDate.format("D MMM");
 }
 
 /**
@@ -31,12 +31,12 @@ export function formatEmailListDate(date: string | null): string {
  * @return {string} The extracted sender's name or "Unknown" if not available.
  */
 export function getSenderName(sender: string | null): string {
-	if (!sender) return "Unknown";
+    if (!sender) return "Unknown";
 
-	// Get name before < email >
-	let matches: string[] | null = sender.match(/[^<]{1,}(?=\s*<)/gm);
-	if (matches === null) return sender;
+    // Get name before < email >
+    let matches: string[] | null = sender.match(/[^<]{1,}(?=\s*<)/gm);
+    if (matches === null) return sender;
 
-	// Get first match, and replace "
-	return matches[0].replace(/"/g, "");
+    // Get first match, and replace "
+    return matches[0].replace(/"/g, "");
 }

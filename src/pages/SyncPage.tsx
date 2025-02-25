@@ -108,7 +108,7 @@ export default function SyncPage() {
 
     return (
         <>
-            <Title>Sync and export data</Title>
+            <Title>Sync</Title>
             <Paper withBorder p={"md"} mt={32}>
                 <Flex gap={8} align={"center"} wrap={"wrap"}>
                     <Button
@@ -118,16 +118,19 @@ export default function SyncPage() {
                     >
                         Sync
                     </Button>
-                    <Button
-                        loading={!logs || logs.isSyncing || loading}
-                        leftSection={<IconDatabaseExport />}
-                        variant="light"
-                        onClick={downloadExport}
-                    >
-                        Export
-                    </Button>
+                    {/*
+          <Button
 
-                    <Text>{exportStatus}</Text>
+            loading={!logs || logs.isSyncing || loading}
+            leftSection={<IconDatabaseExport />}
+            variant="light"
+            onClick={downloadExport}
+          >
+            Export
+          </Button>
+
+          <Text>{exportStatus}</Text>
+          */}
                 </Flex>
             </Paper>
 

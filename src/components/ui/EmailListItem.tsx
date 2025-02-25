@@ -6,50 +6,42 @@ import { Table } from "@mantine/core";
 import { useEffect, useRef } from "react";
 
 export default function EmailListItem({
-	message,
-	fetchTrigger = false,
-	fetchNext = () => {},
-	headersToGet = ["from", "subject", "date"],
+    message,
+    fetchTrigger = false,
+    fetchNext = () => {},
+    headersToGet = ["from", "subject", "date"],
 }: {
-	message: EmailListItemType;
-	fetchTrigger?: boolean;
-	fetchNext?: () => void;
-	headersToGet?: EmailHeadersToGet;
+    message: EmailListItemType;
+    fetchTrigger?: boolean;
+    fetchNext?: () => void;
+    headersToGet?: EmailHeadersToGet;
 }) {
-	const tableRowRef = useRef<HTMLTableRowElement>(null);
-	const isVisible = useOnScreen(tableRowRef);
-	const fetched = useRef<boolean>(false);
+    const tableRowRef = useRef<HTMLTableRowElement>(null);
+    const isVisible = useOnScreen(tableRowRef);
+    const fetched = useRef<boolean>(false);
 
-	useEffect(() => {
-		if (!fetchTrigger) return;
-		if (!isVisible) return;
-		if (fetched.current) return;
+    useEffect(() => {
+        if (!fetchTrigger) return;
+        if (!isVisible) return;
+        if (fetched.current) return;
 
-		fetchNext();
-		fetched.current = true;
-	}, [isVisible]);
+        fetchNext();
+        fetched.current = true;
+    }, [isVisible]);
 
-	const msg = message.message;
+    const msg = message.message;
 
-	return (
-		<Table.Tr ref={tableRowRef}>
-			<Table.Td>
-				{getSenderName(
-					getHeaderInfo(msg.payload.headers, headersToGet[0]),
-				)}
-			</Table.Td>
-			<Table.Td className="info-container">
-				<div className="info">
-					<b>{getHeaderInfo(msg.payload.headers, headersToGet[1])}</b>
-					{" - "}
-					{msg.snippet}
-				</div>
-			</Table.Td>
-			<Table.Td>
-				{formatEmailListDate(
-					getHeaderInfo(msg.payload.headers, headersToGet[2]),
-				)}
-			</Table.Td>
-		</Table.Tr>
-	);
+    return (
+        <Table.Tr ref={tableRowRef}>
+            <Table.Td>{getSenderName(getHeaderInfo(msg.payload.headers, headersToGet[0]))}</Table.Td>
+            <Table.Td className="info-container">
+                <div className="info">
+                    <b>{getHeaderInfo(msg.payload.headers, headersToGet[1])}</b>
+                    {" - "}
+                    {msg.snippet}
+                </div>
+            </Table.Td>
+            <Table.Td>{formatEmailListDate(getHeaderInfo(msg.payload.headers, headersToGet[2]))}</Table.Td>
+        </Table.Tr>
+    );
 }
