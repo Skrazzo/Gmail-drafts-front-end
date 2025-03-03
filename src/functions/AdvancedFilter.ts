@@ -14,10 +14,10 @@ export function AdvancedFilter(emails: EmailSearch[], params: SearchParamsHelper
         hcty: params.getBoolean("hcty"),
         date: params.get("date"),
         dbe: params.getBoolean("dbe"),
+        dhcom: params.getBoolean("dhcom"),
     };
 
-    console.log(f);
-
+    console.log(emails);
     return emails.filter((e) => {
         // If there are company type filters applied
         if (f.cty.length > 0) {
@@ -96,6 +96,13 @@ export function AdvancedFilter(emails: EmailSearch[], params: SearchParamsHelper
                 if (diff >= 0) {
                     return false;
                 }
+            }
+        }
+
+        // Filter "Doesnt have communication"
+        if (f.dhcom) {
+            if (e.last_communication_date) {
+                return false;
             }
         }
 

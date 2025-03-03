@@ -1,5 +1,5 @@
 import SearchParamsHelper from "@/helpers/SearchParamsHelper";
-import { Button, Flex, Group, Modal, MultiSelect, Radio, Skeleton, Stack, Text } from "@mantine/core";
+import { Button, Checkbox, Flex, Group, Modal, MultiSelect, Radio, Skeleton, Stack, Text } from "@mantine/core";
 import { useState } from "react";
 import useIdsHelper from "@/hooks/useIdsHelper";
 import type { IdsHelper } from "@/hooks/useIdsHelper";
@@ -23,6 +23,7 @@ interface Props {
  * hcty -> has company type
  * date -> date
  * dbe -> date before
+ * dhcom -> doesnt have communication
  */
 export interface Filter {
     ct: number[];
@@ -33,6 +34,7 @@ export interface Filter {
     hcty: boolean;
     date: string;
     dbe: boolean;
+    dhcom: boolean;
 }
 export default function AdvancedSearchModal(props: Props) {
     const params = new SearchParamsHelper();
@@ -45,7 +47,9 @@ export default function AdvancedSearchModal(props: Props) {
         hcty: params.getBoolean("hcty"),
         date: params.get("date"),
         dbe: params.getBoolean("dbe"),
+        dhcom: params.getBoolean("dhcom"),
     });
+
     const tags = useIdsHelper("/tags/get");
     const type = useIdsHelper("/types/get");
 
@@ -156,6 +160,14 @@ export default function AdvancedSearchModal(props: Props) {
                                 />
                             </Stack>
                         </Flex>
+                    </StackRow>
+
+                    <StackRow title="">
+                        <Checkbox
+                            label={"No communication with this email"}
+                            checked={values.dhcom}
+                            onChange={() => onBooleanChange("dhcom")}
+                        />
                     </StackRow>
 
                     <Button

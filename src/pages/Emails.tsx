@@ -24,9 +24,11 @@ export default function Emails() {
 
     const [lastSearch, setLastSearch] = useState<string | null>(null);
     const fetchList = async () => {
-        if (lastSearch !== searchQuery.trim()) {
+        const currentSearch = window.location.search;
+
+        if (lastSearch !== currentSearch.trim()) {
             // Set new search as last search
-            setLastSearch(searchQuery.trim());
+            setLastSearch(currentSearch.trim());
         } else {
             // if last search was the same cancel the search
             return;
