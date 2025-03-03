@@ -1,5 +1,5 @@
 import { EmailSearch } from "@/types";
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { ActionIcon, Button, CopyButton, Flex, Input, Loader, Table, Text, Title, Tooltip } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
@@ -22,9 +22,18 @@ export default function Emails() {
     const [loading, setLoading] = useState<boolean>(true);
     const BATCH_SIZE = 50;
 
+    const [lastSearch, setLastSearch] = useState<string | null>(null);
     const fetchList = async () => {
+        if (lastSearch !== searchQuery.trim()) {
+            // Set new search as last search
+            setLastSearch(searchQuery.trim());
+        } else {
+            // if last search was the same cancel the search
+            return;
+        }
+
         setLoading(true);
-        const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery } });
+        const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery.trim() } });
 
         const filtered = AdvancedFilter(tmp.data, params);
 
@@ -50,14 +59,13 @@ export default function Emails() {
             });
     }, []);
 
-    const [searchQuery, setSQ] = useState<string>(params.get("q") || "");
+    const [searchQuery, setSQ] = useState<string>(params.get("q").trim() || "");
     useEffect(() => {
         if (firstRender.current) return;
 
         const t = setTimeout(() => {
             fetchList();
-            params.set("q", searchQuery);
-            // setSearchParams({ q: searchQuery });
+            params.set("q", searchQuery.trim());
         }, 1000);
 
         return () => {
@@ -77,6 +85,16 @@ export default function Emails() {
                 });
             },
         });
+    };
+
+    const searchInputHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        setSQ(e.target.value);
+    };
+
+    const searchInputKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            fetchList();
+        }
     };
 
     return (
@@ -114,7 +132,8 @@ export default function Emails() {
                     <Input
                         value={searchQuery}
                         placeholder="Search email, company and person name"
-                        onChange={(e) => setSQ(e.target.value)}
+                        onChange={searchInputHandler}
+                        onKeyDown={(e) => searchInputKeyDownHandler(e)}
                     />
                 </Input.Wrapper>
                 <Flex direction={"column"} justify={"end"}>
