@@ -19,7 +19,7 @@ export default function Emails() {
     const [displayedList, setDisplayedList] = useState<EmailSearch[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const firstRender = useRef(true);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const BATCH_SIZE = 50;
 
     const [lastSearch, setLastSearch] = useState<string | null>(null);
@@ -31,6 +31,7 @@ export default function Emails() {
             setLastSearch(currentSearch.trim());
         } else {
             // if last search was the same cancel the search
+            console.log("Blocked");
             return;
         }
 
@@ -54,6 +55,21 @@ export default function Emails() {
     };
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        console.log(params);
+
+        if (params.size === 0) {
+            // We do not search when window opens, because it takes a long time
+            setTimeout(() => {
+                // Delay firstRender setting to false, to avoid other useeffects to trigger search
+                firstRender.current = false;
+            }, 250);
+            console.log("Yes I am not searching i promise");
+            return;
+        }
+
+        console.log("Muhahah i am searching");
+
         fetchList()
             .catch(console.error)
             .finally(() => {
@@ -62,13 +78,22 @@ export default function Emails() {
     }, []);
 
     const [searchQuery, setSQ] = useState<string>(params.get("q").trim() || "");
+    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
     useEffect(() => {
         if (firstRender.current) return;
 
+        // set search query in params
+        params.set("q", searchQuery.trim());
+
+        // Clear any previous timeout to avoid duplicate fetches
+        if (searchTimeout) clearTimeout(searchTimeout);
+
+        // Set global timeout
         const t = setTimeout(() => {
             fetchList();
-            params.set("q", searchQuery.trim());
         }, 1000);
+
+        setSearchTimeout(t);
 
         return () => {
             clearTimeout(t);
@@ -95,6 +120,8 @@ export default function Emails() {
 
     const searchInputKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
+            // Clear delayed search, to avoid multiple searches
+            if (searchTimeout) clearTimeout(searchTimeout);
             fetchList();
         }
     };
@@ -143,21 +170,30 @@ export default function Emails() {
                 </Flex>
             </Flex>
 
-            <Table highlightOnHover className="">
-                <Table.Tr>
-                    <Table.Th>Int</Table.Th>
-                    <Table.Th>Co</Table.Th>
-                    <Table.Th>Pri</Table.Th>
-                    <Table.Th>Name</Table.Th>
-                    <Table.Th>Position</Table.Th>
-                    <Table.Th>Email address</Table.Th>
-                    <Table.Th>Tags</Table.Th>
-                    <Table.Th>Company name</Table.Th>
-                    <Table.Th>Last com</Table.Th>
-                </Table.Tr>
+            {/* If not loading, displayedList is empty, and url params are empty display this */}
+            {!loading && displayedList.length === 0 && window.location.search === "" ? (
+                <Text>Press enter in the search bar to search</Text>
+            ) : (
+                <Table highlightOnHover className="">
+                    <Table.Tr>
+                        <Table.Th>Int</Table.Th>
+                        <Table.Th>Co</Table.Th>
+                        <Table.Th>Pri</Table.Th>
+                        <Table.Th>Name</Table.Th>
+                        <Table.Th>Position</Table.Th>
+                        <Table.Th>Email address</Table.Th>
+                        <Table.Th>Tags</Table.Th>
+                        <Table.Th>Company name</Table.Th>
+                        <Table.Th>Last com</Table.Th>
+                    </Table.Tr>
 
-                {loading ? <Loader m={16} /> : <TableRows list={displayedList} onBottomReach={loadMore} />}
-            </Table>
+                    {loading ? (
+                        <Loader size={28} type="dots" m={16} />
+                    ) : (
+                        <TableRows list={displayedList} onBottomReach={loadMore} />
+                    )}
+                </Table>
+            )}
         </>
     );
 }
@@ -189,8 +225,15 @@ const TableRows = React.memo(function TableRows({
         return () => observer.disconnect();
     }, [list]);
 
-    const navigateToEmail = (id: number) => {
-        navigate("/email/" + id);
+    const navigateToEmail = (id: number, event: React.MouseEvent<HTMLTableRowElement>) => {
+        if (event.ctrlKey || event.metaKey || event.button === 1) {
+            // Ctrl + Click (Windows/Linux) or Cmd + Click (Mac) or Middle Click
+            const url = `/email/${id}`;
+            window.open(url, "_blank", "noopener,noreferrer");
+        } else {
+            // Normal left click navigation
+            navigate(`/email/${id}`);
+        }
     };
 
     return (
@@ -198,7 +241,14 @@ const TableRows = React.memo(function TableRows({
             {list.map((item, idx) => (
                 <Table.Tr
                     key={idx}
-                    onClick={() => navigateToEmail(item.id)}
+                    onClick={(e) => navigateToEmail(item.id, e)}
+                    onMouseDown={(e) => {
+                        if (e.button === 1) {
+                            // Prevent default middle-click behavior
+                            e.preventDefault();
+                            navigateToEmail(item.id, e);
+                        }
+                    }}
                     ref={idx === list.length - 1 ? lastRowRef : null}
                 >
                     <Table.Td>{item.interest || "-"}</Table.Td>
