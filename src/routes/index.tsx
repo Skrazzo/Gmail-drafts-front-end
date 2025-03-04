@@ -25,7 +25,7 @@ export const AppRoutes = () => {
                 path="/emails"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="Emails">
                             {/* <DashboardPage /> */}
                             <Emails />
                         </AppLayout>
@@ -37,7 +37,7 @@ export const AppRoutes = () => {
                 path="/email/:id/"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="">
                             <EditEmail />
                         </AppLayout>
                     </ProtectedRoute>
@@ -48,7 +48,7 @@ export const AppRoutes = () => {
                 path="/drafts/create/"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="Create drafts">
                             <CreateDrafts />
                         </AppLayout>
                     </ProtectedRoute>
@@ -59,7 +59,7 @@ export const AppRoutes = () => {
                 path="/drafts/queued/"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="Queue drafts">
                             <QueueDrafts />
                         </AppLayout>
                     </ProtectedRoute>
@@ -70,7 +70,7 @@ export const AppRoutes = () => {
                 path="/data/"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="Sync database">
                             <SyncPage />
                         </AppLayout>
                     </ProtectedRoute>
@@ -80,7 +80,7 @@ export const AppRoutes = () => {
                 path="/unsubscribed/"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="Unsubscribed emails">
                             <UnsubscribedPage />
                         </AppLayout>
                     </ProtectedRoute>
@@ -90,7 +90,7 @@ export const AppRoutes = () => {
                 path="/actions/history/"
                 element={
                     <ProtectedRoute>
-                        <AppLayout>
+                        <AppLayout title="Actions">
                             <ActionHistory />
                         </AppLayout>
                     </ProtectedRoute>

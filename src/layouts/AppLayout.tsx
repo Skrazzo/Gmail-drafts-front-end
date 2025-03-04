@@ -9,12 +9,18 @@ import {
     IconMailCancel,
     IconWriting,
 } from "@tabler/icons-react";
-
+import { Helmet } from "react-helmet";
 import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
 import { Notifications } from "@mantine/notifications";
+import type { ReactNode } from "react";
 
-export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface Props {
+    children: ReactNode;
+    title: string;
+}
+
+export const AppLayout = ({ children, title }: Props) => {
     const [opened, { toggle }] = useDisclosure();
     const { user, logout } = useAuth();
 
@@ -28,6 +34,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             }}
             padding="md"
         >
+            <Helmet>
+                <title>{title}</title>
+            </Helmet>
+
             <AppShell.Header>
                 <Group h="100%" px="md" justify="space-between">
                     <Group>

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { EmailForm } from "./MetadataForm";
 import EditCompany from "./EditCompany";
 import { notifications } from "@mantine/notifications";
+import { Helmet } from "react-helmet";
 
 export default function EditEmail() {
     const { id } = useParams();
@@ -101,33 +102,44 @@ export default function EditEmail() {
     return (
         <>
             {!emailData ? (
-                <p>Loading...</p>
+                <>
+                    <p>Loading...</p>
+                    <Helmet>
+                        <title>Loading...</title>
+                    </Helmet>
+                </>
             ) : (
-                <div className="max-w-6xl mx-auto p-4">
-                    <EditCompany
-                        onUpdate={companyUpdateHandler}
-                        email_id={Number(id)}
-                        company_name={emailData.company_name || ""}
-                        company_type={emailData.company_type || ""}
-                        company_tags={emailData.company_tags || []}
-                        company_logo={emailData.company_logo || null}
-                        company_website={emailData.company_website || ""}
-                        company_address={emailData.company_address}
-                        company_id={emailData.company_id}
-                        company_input_source={emailData.company_input_source}
-                        company_country={emailData.company_country}
-                        company_postal_code={emailData.company_postal_code}
-                        company_social_media={emailData.company_social_media}
-                        navigateToEmail={navigateToEmail}
-                    />
+                <>
+                    <Helmet>
+                        <title>{emailData.email}</title>
+                    </Helmet>
 
-                    <EmailForm
-                        loading={loading}
-                        initialData={emailData}
-                        onSubmit={handleSubmit}
-                        isReadOnly={isReadOnly}
-                    />
-                </div>
+                    <div className="max-w-6xl mx-auto p-4">
+                        <EditCompany
+                            onUpdate={companyUpdateHandler}
+                            email_id={Number(id)}
+                            company_name={emailData.company_name || ""}
+                            company_type={emailData.company_type || ""}
+                            company_tags={emailData.company_tags || []}
+                            company_logo={emailData.company_logo || null}
+                            company_website={emailData.company_website || ""}
+                            company_address={emailData.company_address}
+                            company_id={emailData.company_id}
+                            company_input_source={emailData.company_input_source}
+                            company_country={emailData.company_country}
+                            company_postal_code={emailData.company_postal_code}
+                            company_social_media={emailData.company_social_media}
+                            navigateToEmail={navigateToEmail}
+                        />
+
+                        <EmailForm
+                            loading={loading}
+                            initialData={emailData}
+                            onSubmit={handleSubmit}
+                            isReadOnly={isReadOnly}
+                        />
+                    </div>
+                </>
             )}
         </>
     );

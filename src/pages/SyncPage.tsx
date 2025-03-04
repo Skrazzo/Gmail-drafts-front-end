@@ -1,5 +1,4 @@
 import SyncTimeline from "@/components/ui/SyncPage/Timeline";
-import { API_URL } from "@/global";
 import { AxiosResponse } from "@/types";
 import { Logs } from "@/types/Sync";
 import { Button, Flex, Paper, Text, Title } from "@mantine/core";
