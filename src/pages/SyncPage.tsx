@@ -4,7 +4,6 @@ import { AxiosResponse } from "@/types";
 import { Logs } from "@/types/Sync";
 import { Button, Flex, Paper, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconDatabaseExport } from "@tabler/icons-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import IconSyncDatabase from "@/CustomIcons/IconSyncDatabase";
@@ -12,7 +11,6 @@ import IconSyncDatabase from "@/CustomIcons/IconSyncDatabase";
 export default function SyncPage() {
     const [logs, setLogs] = useState<Logs | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [exportStatus, setExportStatus] = useState<string>("");
 
     const fetchLogs = async () => {
         const logs = (await axios.get<AxiosResponse<Logs>>("/database/sync/logs")).data;
@@ -65,35 +63,6 @@ export default function SyncPage() {
         }
     };
 
-    const downloadExport = async () => {
-        setLoading(true);
-        setExportStatus("Creating excel export, please don't close this page. This will take few minutes");
-
-        const response = (
-            await axios<AxiosResponse<{ filePath: string }>>({
-                url: "/info/export", // Replace with your API endpoint
-                method: "GET",
-                timeout: 900000,
-            })
-        ).data;
-
-        if (!response.success) {
-            notifications.show({
-                title: "Error",
-                message: response.error,
-                color: "red",
-            });
-            console.error(response.error);
-            setExportStatus("Server error");
-            return;
-        }
-
-        setLoading(false);
-        // Redirect user to download
-        const params = new URLSearchParams({ filePath: response.data.filePath });
-        window.open(`${API_URL}/info/export/download?${params}`, "_blank");
-    };
-
     useEffect(() => {
         fetchLogs();
 
@@ -118,19 +87,6 @@ export default function SyncPage() {
                     >
                         Sync
                     </Button>
-                    {/*
-          <Button
-
-            loading={!logs || logs.isSyncing || loading}
-            leftSection={<IconDatabaseExport />}
-            variant="light"
-            onClick={downloadExport}
-          >
-            Export
-          </Button>
-
-          <Text>{exportStatus}</Text>
-          */}
                 </Flex>
             </Paper>
 
