@@ -13,6 +13,7 @@ export interface ActionHistory {
         | "added_tracker_tags"
         | "separated_mailboxes"
         | "linked_cc_emails"
+        | "companies"
         | null;
     sub_category: string | null;
     created_at: string | null;
