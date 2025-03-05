@@ -259,7 +259,7 @@ const TableRows = React.memo(function TableRows({
                     <Table.Td>{item.email || "-"}</Table.Td>
                     <Table.Td>{item.tags || "-"}</Table.Td>
                     <Table.Td>{item.company_name || "-"}</Table.Td>
-                    <Table.Td>
+                    <Table.Td className="whitespace-nowrap">
                         {item.last_communication_date ? dayjs(item.last_communication_date).format("MMM DD, YY") : "-"}
                     </Table.Td>
                 </Table.Tr>

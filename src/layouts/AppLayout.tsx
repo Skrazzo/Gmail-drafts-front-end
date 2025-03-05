@@ -14,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
 import { Notifications } from "@mantine/notifications";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
     children: ReactNode;
@@ -23,6 +24,7 @@ interface Props {
 export const AppLayout = ({ children, title }: Props) => {
     const [opened, { toggle }] = useDisclosure();
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <AppShell
@@ -42,7 +44,9 @@ export const AppLayout = ({ children, title }: Props) => {
                 <Group h="100%" px="md" justify="space-between">
                     <Group>
                         <Burger opened={opened} onClick={toggle} size="sm" />
-                        <h3>Gmail app</h3>
+                        <h3 className="cursor-pointer select-none" onClick={() => navigate("/login")}>
+                            Gmail app
+                        </h3>
                     </Group>
                     <Group>
                         <span>{user?.name}</span>

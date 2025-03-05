@@ -158,16 +158,13 @@ export default function AdvancedSearchModal(props: Props) {
                                     checked={!values.dbe}
                                     label="After this date"
                                 />
+                                <Checkbox
+                                    label={"No communication with this email"}
+                                    checked={values.dhcom}
+                                    onChange={() => onBooleanChange("dhcom")}
+                                />
                             </Stack>
                         </Flex>
-                    </StackRow>
-
-                    <StackRow title="">
-                        <Checkbox
-                            label={"No communication with this email"}
-                            checked={values.dhcom}
-                            onChange={() => onBooleanChange("dhcom")}
-                        />
                     </StackRow>
 
                     <Button
