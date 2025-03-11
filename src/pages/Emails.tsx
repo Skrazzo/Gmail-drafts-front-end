@@ -38,7 +38,9 @@ export default function Emails() {
         setLoading(true);
         const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery.trim() } });
 
+        console.time("Filter");
         const filtered = AdvancedFilter(tmp.data, params);
+        console.timeEnd("Filter");
 
         setList(filtered);
         setDisplayedList(filtered.slice(0, BATCH_SIZE));
