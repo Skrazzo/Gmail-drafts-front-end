@@ -1,5 +1,5 @@
 import SearchParamsHelper from "@/helpers/SearchParamsHelper";
-import { Button, Checkbox, Flex, Group, Modal, MultiSelect, Radio, Skeleton, Stack, Text } from "@mantine/core";
+import { Button, Checkbox, Flex, Group, Modal, MultiSelect, Paper, Radio, Skeleton, Stack, Text } from "@mantine/core";
 import { useState } from "react";
 import useIdsHelper from "@/hooks/useIdsHelper";
 import type { IdsHelper } from "@/hooks/useIdsHelper";
@@ -24,6 +24,7 @@ interface Props {
  * date -> date
  * dbe -> date before
  * dhcom -> doesnt have communication
+ * e1 -> One email from company
  */
 export interface Filter {
     ct: number[];
@@ -35,6 +36,7 @@ export interface Filter {
     date: string;
     dbe: boolean;
     dhcom: boolean;
+    e1: boolean;
 }
 export default function AdvancedSearchModal(props: Props) {
     const params = new SearchParamsHelper();
@@ -48,6 +50,7 @@ export default function AdvancedSearchModal(props: Props) {
         date: params.get("date"),
         dbe: params.getBoolean("dbe"),
         dhcom: params.getBoolean("dhcom"),
+        e1: params.getBoolean("e1"),
     });
 
     const tags = useIdsHelper("/tags/get");
@@ -142,6 +145,16 @@ export default function AdvancedSearchModal(props: Props) {
                             />
                         </Group>
                     </StackRow>
+
+                    <Paper withBorder w={"100%"} p={"sm"}>
+                        <StackRow title="Additional email options">
+                            <Checkbox
+                                label={"Select only one email from company"}
+                                checked={values.e1}
+                                onChange={() => onBooleanChange("e1")}
+                            />
+                        </StackRow>
+                    </Paper>
 
                     <StackRow title="">
                         <Flex w="100%" gap={"lg"}>
