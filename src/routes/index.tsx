@@ -10,6 +10,7 @@ import QueueDrafts from "@/pages/QueueDrafts";
 import SyncPage from "@/pages/SyncPage";
 import UnsubscribedPage from "@/pages/UnsubscribedPage";
 import ActionHistory from "../pages/ActionsHistory";
+import ChatGPTPromptingPage from "@/pages/ChatGPTPrompting";
 
 export const AppRoutes = () => {
     const { user, loading } = useAuth();
@@ -92,6 +93,17 @@ export const AppRoutes = () => {
                     <ProtectedRoute>
                         <AppLayout title="Actions">
                             <ActionHistory />
+                        </AppLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/chatgpt/"
+                element={
+                    <ProtectedRoute>
+                        <AppLayout title="ChatGPT Analysis">
+                            <ChatGPTPromptingPage />
                         </AppLayout>
                     </ProtectedRoute>
                 }

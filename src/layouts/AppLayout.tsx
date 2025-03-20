@@ -15,6 +15,7 @@ import NavbarItem from "@/components/ui/NavbarItem";
 import { Notifications } from "@mantine/notifications";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { IconChatGPT } from "@/CustomIcons/IconChatGPT";
 
 interface Props {
     children: ReactNode;
@@ -62,6 +63,7 @@ export const AppLayout = ({ children, title }: Props) => {
                     <NavbarItem link="/drafts/queued" icon={<IconHourglassEmpty />} text="Queued drafts" />
                     <NavbarItem link="/data" icon={<IconDatabase />} text="Sync" />
                     <NavbarItem link="/actions/history" icon={<IconHistory />} text="See action history" />
+                    <NavbarItem link="/chatgpt" icon={<IconChatGPT />} text="ChatGPT Analysis" />
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main>
