@@ -11,7 +11,7 @@ import { IconFilter } from "@tabler/icons-react";
 interface Props {
     close: () => void;
     opened: boolean;
-    searchEmails: () => void;
+    searchEmails: (emailArray?: string[]) => void;
 }
 
 /**
@@ -77,6 +77,24 @@ export default function AdvancedSearchModal(props: Props) {
             setValues({ ...values, date: dayjs(date).format(params.dateFormat) });
         } else {
             setValues({ ...values, date: "" });
+        }
+    };
+
+    const handleEmailsFromClipboard = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        try {
+            const text = await navigator.clipboard.readText();
+            const emails = text
+                .split(/\s+|,|;|\n/) // Split by whitespace, commas, semicolons, or newlines
+                .map((email) => email.trim().toLowerCase())
+                .filter((email) => email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+
+            // 'emails' now contains cleaned valid email addresses
+            props.searchEmails(emails);
+        } catch (error) {
+            console.error("Failed to read clipboard:", error);
+            props.searchEmails();
+        } finally {
+            props.close();
         }
     };
 
@@ -180,16 +198,21 @@ export default function AdvancedSearchModal(props: Props) {
                         </Flex>
                     </StackRow>
 
-                    <Button
-                        onClick={() => {
-                            props.searchEmails();
-                            props.close();
-                        }}
-                        variant="light"
-                        leftSection={<IconFilter size={20} />}
-                    >
-                        Apply filters
-                    </Button>
+                    <Group grow>
+                        <Button
+                            onClick={() => {
+                                props.searchEmails();
+                                props.close();
+                            }}
+                            variant="light"
+                            leftSection={<IconFilter size={20} />}
+                        >
+                            Apply filters
+                        </Button>
+                        <Button variant="outline" onClick={(e) => handleEmailsFromClipboard(e)}>
+                            Take emails from clipboard
+                        </Button>
+                    </Group>
                 </Stack>
             )}
         </Modal>

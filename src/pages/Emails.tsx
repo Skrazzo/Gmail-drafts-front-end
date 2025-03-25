@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import IconExport from "@/CustomIcons/IconExport";
 import Requests from "@/functions/Requests";
 import { notifications } from "@mantine/notifications";
+import { getInvertedEmails } from "@/lib/utils";
 
 export default function Emails() {
     const params = new SearchParamsHelper();
@@ -23,7 +24,7 @@ export default function Emails() {
     const BATCH_SIZE = 50;
 
     const [lastSearch, setLastSearch] = useState<string | null>(null);
-    const fetchList = async () => {
+    const fetchList = async (filterMultipleEmails: string[] = []) => {
         const currentSearch = window.location.search;
 
         if (lastSearch !== currentSearch.trim()) {
@@ -36,14 +37,56 @@ export default function Emails() {
         }
 
         setLoading(true);
-        const tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery.trim() } });
+        let tmp = await axios.get<EmailSearch[]>("/emails/list", { params: { search: searchQuery.trim() } });
+
+        // filter emails from clipboard
+        console.time("Clipboard filter");
+
+        // Emails that are not in database
+        let noDBEmails: string[] = [];
+        if (filterMultipleEmails.length !== 0) {
+            // Filter email addresses for those who are in clipboard
+            tmp.data = tmp.data.filter((e) => filterMultipleEmails.includes(e.email.toLowerCase()));
+
+            // Find emails that arent in database and add to noDBEmails
+            noDBEmails = getInvertedEmails(
+                filterMultipleEmails,
+                tmp.data.map((e) => e.email.toLowerCase())
+            );
+        }
+
+        console.timeEnd("Clipboard filter");
+        // props.searchEmails();
+        // props.close();
 
         console.time("Filter");
         const filtered = AdvancedFilter(tmp.data, params);
         console.timeEnd("Filter");
 
-        setList(filtered);
-        setDisplayedList(filtered.slice(0, BATCH_SIZE));
+        // new list
+        const listArray = [
+            ...filtered,
+            // render noDBEmails, emails that arent in database
+            ...noDBEmails.map((e) => ({
+                id: 0,
+                email: e,
+                interest: null,
+                country: null,
+                person_name: null,
+                person_position: null,
+                company_id: null,
+                company_name: null,
+                company_type: null,
+                company_tags: null,
+                primary: null,
+                tags: "",
+                tags_id: null,
+                last_communication_date: null,
+            })),
+        ];
+
+        setList(listArray);
+        setDisplayedList(listArray.slice(0, BATCH_SIZE));
         setCurrentIndex(BATCH_SIZE);
         setLoading(false);
     };

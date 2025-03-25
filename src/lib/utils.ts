@@ -8,3 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 export async function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function getInvertedEmails(originalEmails: string[], filterEmails: string[]): string[] {
+    const lowerCaseFilter = new Set(filterEmails.map((email) => email.toLowerCase()));
+    return originalEmails.filter((email) => !lowerCaseFilter.has(email.toLowerCase()));
+}
