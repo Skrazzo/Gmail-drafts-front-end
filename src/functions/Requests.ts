@@ -6,6 +6,7 @@ interface PostProps<T> {
     url: string;
     data: Record<string, any>;
     before?: () => void;
+    finally?: () => void;
     success?: (data: T) => void;
 }
 
@@ -13,6 +14,7 @@ interface GetProps<T> {
     url: string;
     params?: Record<string, any>;
     before?: () => void;
+    finally?: () => void;
     success?: (data: T) => void;
 }
 
@@ -40,6 +42,8 @@ class Requests {
             });
 
             console.error(`Request error: ${err} for ${props.url}`);
+        } finally {
+            props.finally?.();
         }
     }
 
@@ -65,6 +69,8 @@ class Requests {
             });
 
             console.error(`Request error: ${err} for ${props.url}`);
+        } finally {
+            props.finally?.();
         }
     }
 }

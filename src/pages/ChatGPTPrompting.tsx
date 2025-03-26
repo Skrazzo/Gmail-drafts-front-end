@@ -18,43 +18,9 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { DatePickerInput } from "@mantine/dates";
-import { IconRefresh, IconSend, IconTrash } from "@tabler/icons-react";
-import { DateRange, PromptBatch } from "@/types/ChatGPT";
-
-// Mock function to simulate API calls (replace with actual API calls later)
-const mockFetchBatches = async (): Promise<PromptBatch[]> => {
-    // This would be replaced with an actual API call
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    id: "1",
-                    prompt: "Summarize the main topics from these emails",
-                    dateRange: { from: new Date("2023-01-01"), to: new Date("2023-01-31") },
-                    status: "completed",
-                    createdAt: "2023-01-15T12:00:00Z",
-                    completedAt: "2023-01-15T12:05:00Z",
-                    result: "The main topics in these emails were: product updates, meeting scheduling, and customer feedback discussions.",
-                },
-                {
-                    id: "2",
-                    prompt: "Find all emails related to project Alpha",
-                    dateRange: { from: new Date("2023-02-01"), to: new Date("2023-02-28") },
-                    status: "running",
-                    createdAt: "2023-02-15T14:30:00Z",
-                },
-                {
-                    id: "3",
-                    prompt: "Identify common issues mentioned by customers",
-                    dateRange: { from: null, to: null },
-                    status: "failed",
-                    createdAt: "2023-03-01T10:00:00Z",
-                    completedAt: "2023-03-01T10:02:00Z",
-                },
-            ]);
-        }, 500);
-    });
-};
+import { IconRefresh, IconSend } from "@tabler/icons-react";
+import { DateRange, PromptBatches } from "@/types/ChatGPT";
+import Requests from "@/functions/Requests";
 
 // Mock function to simulate sending a prompt (replace with actual API call later)
 const mockSendPrompt = async (prompt: string, dateRange: DateRange | null): Promise<void> => {
@@ -70,10 +36,10 @@ const ChatGPTPromptingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string | null>("new");
     const [prompt, setPrompt] = useState("");
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-    const [batches, setBatches] = useState<PromptBatch[]>([]);
+    const [batches, setBatches] = useState<PromptBatches>();
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    const [selectedBatch, setSelectedBatch] = useState<PromptBatch | null>(null);
+    const [selectedBatch, setSelectedBatch] = useState<PromptBatches | null>(null);
 
     // Fetch batches on component mount
     useEffect(() => {
@@ -81,19 +47,18 @@ const ChatGPTPromptingPage: React.FC = () => {
     }, []);
 
     const fetchBatches = async () => {
-        setIsLoading(true);
-        try {
-            const data = await mockFetchBatches();
-            setBatches(data);
-        } catch (error) {
-            notifications.show({
-                title: "Error",
-                message: "Failed to fetch prompt batches",
-                color: "red",
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        Requests.get<PromptBatches>({
+            url: "/ai/batches",
+            success(data) {
+                setBatches(data);
+            },
+            before() {
+                setIsLoading(true);
+            },
+            finally() {
+                setIsLoading(false);
+            },
+        });
     };
 
     const handleSubmit = async () => {
@@ -106,25 +71,27 @@ const ChatGPTPromptingPage: React.FC = () => {
             return;
         }
 
-        setIsSending(true);
-        try {
-            await mockSendPrompt(prompt, dateRange);
-            notifications.show({
-                title: "Success",
-                message: "Prompt sent successfully",
-                color: "green",
-            });
-            setPrompt("");
-            fetchBatches(); // Refresh the batches list
-        } catch (error) {
-            notifications.show({
-                title: "Error",
-                message: "Failed to send prompt",
-                color: "red",
-            });
-        } finally {
-            setIsSending(false);
-        }
+        Requests.post({
+            url: "/ai/batch",
+            data: {
+                from: dateRange[0],
+                to: dateRange[1],
+                prompt: prompt.trim(),
+            },
+            success(data) {
+                notifications.show({
+                    title: "Created",
+                    message: "Prompt was successfully sent to openai for processing",
+                    color: "green",
+                });
+            },
+            before() {
+                setIsSending(true);
+            },
+            finally() {
+                setIsSending(false);
+            },
+        });
     };
 
     const handleBatchSelect = (batch: PromptBatch) => {

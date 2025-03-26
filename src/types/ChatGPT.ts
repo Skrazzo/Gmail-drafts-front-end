@@ -1,19 +1,27 @@
 export interface DateRange {
-  from: Date | null;
-  to: Date | null;
+    from: Date | null;
+    to: Date | null;
 }
 
-export interface PromptBatch {
-  id: string;
-  prompt: string;
-  dateRange: DateRange;
-  status: 'running' | 'completed' | 'failed';
-  createdAt: string;
-  completedAt?: string;
-  result?: string;
+export interface PromptBatches {
+    completed: Batch[];
+    failed: Batch[];
+    in_progress: Batch[];
+}
+
+export interface Batch {
+    status: string;
+    db: {
+        id: number;
+        prompt: string;
+        processed_info: string; // JSON
+        date_range: string; // JSON
+        created_at: string;
+    };
 }
 
 export interface ChatGPTPromptRequest {
-  prompt: string;
-  dateRange?: DateRange;
+    prompt: string;
+    dateRange?: DateRange;
 }
+
