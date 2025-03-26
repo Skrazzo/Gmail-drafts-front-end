@@ -15,11 +15,18 @@ import {
     ActionIcon,
     ScrollArea,
     Divider,
+    Skeleton,
+    List,
+    Box,
+    Table,
+    ThemeIcon,
+    Avatar,
+    CloseButton,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { DatePickerInput } from "@mantine/dates";
-import { IconRefresh, IconSend } from "@tabler/icons-react";
-import { DateRange, PromptBatches, Batch, BatchData } from "@/types/ChatGPT";
+import { IconCalendar, IconChevronRight, IconMail, IconRefresh, IconSend } from "@tabler/icons-react";
+import { DateRange, PromptBatches, Batch, BatchData, EmailInfo } from "@/types/ChatGPT";
 import Requests from "@/functions/Requests";
 
 const ChatGPTPromptingPage: React.FC = () => {
@@ -32,6 +39,7 @@ const ChatGPTPromptingPage: React.FC = () => {
     const [isSending, setIsSending] = useState(false);
     const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
     const [selectedBatchData, setSelectedBatchData] = useState<BatchData | null>(null);
+    const [selectedEmail, setSelectedEmail] = useState<EmailInfo | null>(null);
 
     // Fetch batches on component mount
     useEffect(() => {
@@ -42,8 +50,6 @@ const ChatGPTPromptingPage: React.FC = () => {
         Requests.get<PromptBatches>({
             url: "/ai/batches",
             success(data) {
-                console.log(data);
-
                 setBatches(data);
             },
             before() {
@@ -95,20 +101,28 @@ const ChatGPTPromptingPage: React.FC = () => {
 
     const handleBatchSelect = (batch: Batch) => {
         if (!batch) return;
+
+        // Reset selected email if a new batch is selected
+        if (selectedBatch?.id !== batch.id) {
+            setSelectedEmail(null);
+        }
+
         setSelectedBatch(batch);
 
         Requests.get<BatchData>({
             url: "/ai/batch",
             params: { batch_id: batch.id },
-
             before() {
                 setSelectedBatchData(null);
             },
             success(data) {
-                console.log(data);
                 setSelectedBatchData(data);
             },
         });
+    };
+
+    const handleEmailSelect = (email: EmailInfo) => {
+        setSelectedEmail((prev) => (prev?.id === email.id ? null : email));
     };
 
     const getStatusBadge = (status: string) => {
@@ -126,6 +140,22 @@ const ChatGPTPromptingPage: React.FC = () => {
 
     const getBatchCount = (type: keyof PromptBatches) => {
         return batches[type]?.length || 0;
+    };
+
+    // Format date in a more user-friendly way
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "N/A";
+
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+
+        return new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(date);
     };
 
     return (
@@ -183,6 +213,10 @@ const ChatGPTPromptingPage: React.FC = () => {
                         onBatchSelect={handleBatchSelect}
                         onRefresh={fetchBatches}
                         selectedBatch={selectedBatch}
+                        selectedBatchData={selectedBatchData}
+                        selectedEmail={selectedEmail}
+                        onEmailSelect={handleEmailSelect}
+                        formatDate={formatDate}
                     />
                 </Tabs.Panel>
 
@@ -193,6 +227,10 @@ const ChatGPTPromptingPage: React.FC = () => {
                         onBatchSelect={handleBatchSelect}
                         onRefresh={fetchBatches}
                         selectedBatch={selectedBatch}
+                        selectedBatchData={selectedBatchData}
+                        selectedEmail={selectedEmail}
+                        onEmailSelect={handleEmailSelect}
+                        formatDate={formatDate}
                     />
                 </Tabs.Panel>
 
@@ -203,6 +241,10 @@ const ChatGPTPromptingPage: React.FC = () => {
                         onBatchSelect={handleBatchSelect}
                         onRefresh={fetchBatches}
                         selectedBatch={selectedBatch}
+                        selectedBatchData={selectedBatchData}
+                        selectedEmail={selectedEmail}
+                        onEmailSelect={handleEmailSelect}
+                        formatDate={formatDate}
                     />
                 </Tabs.Panel>
             </Tabs>
@@ -216,6 +258,10 @@ interface DisplayBatchesProps {
     onBatchSelect: (batch: Batch) => void;
     onRefresh: () => void;
     selectedBatch: Batch | null;
+    selectedBatchData: BatchData | null;
+    selectedEmail: EmailInfo | null;
+    onEmailSelect: (email: EmailInfo) => void;
+    formatDate: (dateString: string) => string;
 }
 
 const DisplayBatches: React.FC<DisplayBatchesProps> = ({
@@ -224,6 +270,10 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
     onBatchSelect,
     onRefresh,
     selectedBatch,
+    selectedBatchData,
+    selectedEmail,
+    onEmailSelect,
+    formatDate,
 }) => {
     if (isLoading) {
         return (
@@ -232,6 +282,8 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
             </Group>
         );
     }
+
+    console.log(selectedBatchData);
 
     if (batches.length === 0) {
         return (
@@ -242,10 +294,6 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
             </Card>
         );
     }
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString();
-    };
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -265,46 +313,67 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
         try {
             const range = JSON.parse(dateRangeStr);
             return {
-                from: range.from ? new Date(range.from) : null,
-                to: range.to ? new Date(range.to) : null,
+                from: range.from ? range.from : null,
+                to: range.to ? range.to : null,
             };
         } catch (e) {
             return { from: null, to: null };
         }
     };
 
+    // Get first couple of lines from ChatGPT response
+    const getPreviewResponse = (chatGptResponse: string) => {
+        if (!chatGptResponse) return "No response available";
+
+        // Split by newlines, get first two lines, and join with newline
+        const lines = chatGptResponse.split("\n");
+        return lines.slice(0, 2).join("\n") + (lines.length > 2 ? "..." : "");
+    };
+
+    // Extract date range in a consistent format
+    const getFormattedDateRange = (dateRangeString: string) => {
+        try {
+            const { from, to } = parseDateRange(dateRangeString);
+            return (
+                <>
+                    {from ? formatDate(from) : "All emails"}
+                    {to ? ` to ${formatDate(to)}` : ""}
+                </>
+            );
+        } catch (e) {
+            return "Date range not available";
+        }
+    };
+
     // Function to handle batch click and open batch details
     const handleBatchClick = (batch: Batch) => {
         onBatchSelect(batch);
-        console.log(batch);
-        // Here you would fetch the email list for this batch
-        // This is where you would insert batch opening code
     };
 
     return (
-        <Group grow align="flex-start">
-            <Card withBorder shadow="sm" radius="md" p={0} style={{ height: "500px" }}>
-                <Group p="xs" justify="apart">
-                    <Text fw={500}>Prompts</Text>
-                    <ActionIcon onClick={onRefresh} variant="subtle">
-                        <IconRefresh size={16} />
-                    </ActionIcon>
-                </Group>
-                <Divider />
-                <ScrollArea style={{ height: "450px" }}>
-                    <Stack gap={"xs"} p="xs">
-                        {batches.map((batch) => {
-                            const dateRange = parseDateRange(batch.db.date_range);
-                            return (
+        <Stack gap="md">
+            <Group grow align="flex-start">
+                {/* Left panel - Batch list */}
+                <Card withBorder shadow="sm" radius="md" p={0} style={{ height: "500px" }}>
+                    <Group p="xs" justify="apart">
+                        <Text fw={500}>Prompts</Text>
+                        <ActionIcon onClick={onRefresh} variant="subtle">
+                            <IconRefresh size={16} />
+                        </ActionIcon>
+                    </Group>
+                    <Divider />
+                    <ScrollArea style={{ height: "450px" }}>
+                        <Stack gap={"xs"} p="xs">
+                            {batches.map((batch) => (
                                 <Paper
-                                    key={batch.db.id}
+                                    key={batch.id}
                                     withBorder
                                     p="sm"
                                     onClick={() => handleBatchClick(batch)}
                                     style={{
                                         cursor: "pointer",
                                         backgroundColor:
-                                            selectedBatch?.db.id === batch.db.id
+                                            selectedBatch?.id === batch.id
                                                 ? "var(--mantine-color-blue-light)"
                                                 : undefined,
                                     }}
@@ -318,58 +387,163 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
                                     <Text size="xs" c="dimmed">
                                         Created: {formatDate(batch.db.created_at)}
                                     </Text>
-                                    <Text size="xs" c="dimmed">
-                                        Date Range: {dateRange.from ? dateRange.from.toLocaleDateString() : "All"}
-                                        {dateRange.to ? ` to ${dateRange.to.toLocaleDateString()}` : ""}
-                                    </Text>
+                                    <Group gap="xs" align="center">
+                                        <ThemeIcon size="xs" color="gray" variant="light">
+                                            <IconCalendar size={10} />
+                                        </ThemeIcon>
+                                        <Text size="xs" c="dimmed">
+                                            {getFormattedDateRange(batch.db.date_range)}
+                                        </Text>
+                                    </Group>
                                 </Paper>
-                            );
-                        })}
-                    </Stack>
-                </ScrollArea>
-            </Card>
-
-            <Card withBorder shadow="sm" radius="md" p="md" style={{ height: "500px" }}>
-                {selectedBatch ? (
-                    <ScrollArea style={{ height: "100%" }}>
-                        <Title order={4} mb="xs">
-                            {selectedBatch.db.prompt}
-                        </Title>
-                        <Group mb="md">
-                            {getStatusBadge(selectedBatch.status)}
-                            <Text size="sm">Created: {formatDate(selectedBatch.db.created_at)}</Text>
-                        </Group>
-                        <Text size="sm" mb="md">
-                            {(() => {
-                                const dateRange = parseDateRange(selectedBatch.db.date_range);
-                                return (
-                                    <>
-                                        Date Range:{" "}
-                                        {dateRange.from ? dateRange.from.toLocaleDateString() : "All emails"}
-                                        {dateRange.to ? ` to ${dateRange.to.toLocaleDateString()}` : ""}
-                                    </>
-                                );
-                            })()}
-                        </Text>
-                        <Divider my="md" />
-                        {selectedBatch.status === "in_progress" ? (
-                            <Group justify="center" p="xl">
-                                <Loader />
-                                <Text>Processing prompt...</Text>
-                            </Group>
-                        ) : selectedBatch.status === "failed" ? (
-                            <Text c="red">Failed to process this prompt. Please try again.</Text>
-                        ) : (
-                            <Text>{selectedBatch.db.processed_info || "No result available"}</Text>
-                        )}
+                            ))}
+                        </Stack>
                     </ScrollArea>
-                ) : (
-                    <Text c="dimmed" ta="center" mt="xl">
-                        Select a prompt to view details
-                    </Text>
-                )}
-            </Card>
-        </Group>
+                </Card>
+
+                {/* Right panel - Batch details */}
+                <Card withBorder shadow="sm" radius="md" p="md" style={{ height: "500px" }}>
+                    {!selectedBatch ? (
+                        <Text c="dimmed" ta="center" mt="xl">
+                            Select a prompt to view details
+                        </Text>
+                    ) : selectedBatchData === null ? (
+                        <Stack>
+                            <Skeleton height={30} width="70%" mb="sm" />
+                            <Group mb="md">
+                                <Skeleton height={20} width={60} />
+                                <Skeleton height={20} width={140} />
+                            </Group>
+                            <Skeleton height={20} width="60%" mb="md" />
+                            <Divider my="md" />
+                            <Skeleton height={50} mb="sm" />
+                            <Skeleton height={50} mb="sm" />
+                            <Skeleton height={50} mb="sm" />
+                        </Stack>
+                    ) : (
+                        <ScrollArea style={{ height: "100%" }}>
+                            <Title order={4} mb="xs">
+                                {selectedBatchData?.prompt || selectedBatch.db.prompt}
+                            </Title>
+                            <Group mb="md">
+                                {getStatusBadge(selectedBatch.status)}
+                                <Text size="sm">Created: {formatDate(selectedBatch.db.created_at)}</Text>
+                            </Group>
+                            <Group gap="xs" align="center" mb="md">
+                                <ThemeIcon size="sm" color="blue" variant="light">
+                                    <IconCalendar size={14} />
+                                </ThemeIcon>
+                                <Text size="sm">
+                                    {selectedBatchData?.date_range
+                                        ? `${formatDate(selectedBatchData.date_range[0])} to ${formatDate(selectedBatchData.date_range[1])}`
+                                        : getFormattedDateRange(selectedBatch.db.date_range)}
+                                </Text>
+                            </Group>
+                            <Divider my="md" />
+
+                            {selectedBatch.status === "in_progress" ? (
+                                <Group justify="center" p="xl">
+                                    <Loader />
+                                    <Text>Processing prompt...</Text>
+                                </Group>
+                            ) : selectedBatch.status === "failed" ? (
+                                <Text c="red">Failed to process this prompt. Please try again.</Text>
+                            ) : !Object.keys(selectedBatchData?.emails || {}).length ? (
+                                <Text>No emails processed for this prompt.</Text>
+                            ) : (
+                                <Stack gap="xs">
+                                    {/* Count total emails across all records */}
+
+                                    {/* Iterate through each email record */}
+                                    {Object.entries(selectedBatchData.emails).map(
+                                        ([email, emailRecord]: [string, EmailInfo[]], idx) => (
+                                            <div key={email}>
+                                                {/* Display the email address as a section title */}
+                                                <Text size="sm" fw={600}>
+                                                    {email}
+                                                </Text>
+
+                                                {/* Display each email in this thread */}
+                                                {emailRecord.map((email) => (
+                                                    <Paper
+                                                        key={email.id}
+                                                        withBorder
+                                                        p="sm"
+                                                        mt="xs"
+                                                        onClick={() => onEmailSelect(email)}
+                                                        style={{
+                                                            cursor: "pointer",
+                                                            backgroundColor:
+                                                                selectedEmail?.id === email.id
+                                                                    ? "var(--mantine-color-blue-light)"
+                                                                    : undefined,
+                                                        }}
+                                                    >
+                                                        <Group justify="space-between" mb="xs">
+                                                            <Text size="sm" fw={500} lineClamp={2}>
+                                                                {email.subject || "(No subject)"}
+                                                            </Text>
+                                                            <Badge size="sm">{email.type}</Badge>
+                                                        </Group>
+                                                        <Text size="xs" c="dimmed" mb="xs">
+                                                            Date: {formatDate(email.email_date)}
+                                                        </Text>
+                                                        <Text size="xs" lineClamp={4}>
+                                                            {getPreviewResponse(email.chat_gpt)}
+                                                        </Text>
+                                                    </Paper>
+                                                ))}
+                                            </div>
+                                        )
+                                    )}
+                                </Stack>
+                            )}
+                        </ScrollArea>
+                    )}
+                </Card>
+            </Group>
+
+            {/* Email detail section that shows when an email is selected */}
+            {/* {selectedEmail && ( */}
+            {/*     <Card withBorder shadow="sm" radius="md" p="md"> */}
+            {/*         <Group justify="space-evenly" mb="md"> */}
+            {/*             <Title order={4}>Email Details</Title> */}
+            {/*             <CloseButton onClick={() => onEmailSelect(selectedEmail)} /> */}
+            {/*         </Group> */}
+            {/**/}
+            {/*         <Group justify="space-evenly" mb="md"> */}
+            {/*             <div> */}
+            {/*                 <Text fw={700} size="lg"> */}
+            {/*                     {selectedEmail.subject || "(No subject)"} */}
+            {/*                 </Text> */}
+            {/*                 <Text size="sm" c="dimmed"> */}
+            {/*                     Type: {selectedEmail.type} • Date: {formatDate(selectedEmail.email_date)} */}
+            {/*                 </Text> */}
+            {/*             </div> */}
+            {/*         </Group> */}
+            {/**/}
+            {/*         <Divider my="md" label="Email Content" labelPosition="center" /> */}
+            {/**/}
+            {/*         <Paper p="md" withBorder mb="md"> */}
+            {/*             <ScrollArea style={{ maxHeight: "300px" }}> */}
+            {/*                 <div style={{ whiteSpace: "pre-wrap" }}> */}
+            {/*                     {selectedEmail.body || "No email content available"} */}
+            {/*                 </div> */}
+            {/*             </ScrollArea> */}
+            {/*         </Paper> */}
+            {/**/}
+            {/*         <Divider my="md" label="ChatGPT Analysis" labelPosition="center" /> */}
+            {/**/}
+            {/*         <Paper p="md" withBorder> */}
+            {/*             <ScrollArea style={{ maxHeight: "300px" }}> */}
+            {/*                 <div style={{ whiteSpace: "pre-wrap" }}> */}
+            {/*                     {selectedEmail.chat_gpt || "No analysis available"} */}
+            {/*                 </div> */}
+            {/*             </ScrollArea> */}
+            {/*         </Paper> */}
+            {/*     </Card> */}
+            {/* )} */}
+        </Stack>
     );
 };
 

@@ -25,7 +25,7 @@ export interface BatchData {
     batch_id: string;
     date_range: [string, string];
     prompt: string;
-    emails: EmailInfo[];
+    emails: Record<string, EmailInfo[]>; // Email as key, and then email messages in email info
 }
 
 export interface EmailInfo {
@@ -41,4 +41,3 @@ export interface ChatGPTPromptRequest {
     prompt: string;
     dateRange?: DateRange;
 }
-
