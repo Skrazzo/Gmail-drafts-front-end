@@ -10,6 +10,7 @@ export interface PromptBatches {
 }
 
 export interface Batch {
+    id: string; // Batch id
     status: string;
     db: {
         id: number;
@@ -18,6 +19,22 @@ export interface Batch {
         date_range: string; // JSON
         created_at: string;
     };
+}
+
+export interface BatchData {
+    batch_id: string;
+    date_range: [string, string];
+    prompt: string;
+    emails: EmailInfo[];
+}
+
+export interface EmailInfo {
+    id: number;
+    subject: string;
+    type: string;
+    email_date: string;
+    chat_gpt: string; // Response about the email
+    body: string;
 }
 
 export interface ChatGPTPromptRequest {

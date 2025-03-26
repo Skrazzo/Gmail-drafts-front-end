@@ -19,27 +19,19 @@ import {
 import { notifications } from "@mantine/notifications";
 import { DatePickerInput } from "@mantine/dates";
 import { IconRefresh, IconSend } from "@tabler/icons-react";
-import { DateRange, PromptBatches } from "@/types/ChatGPT";
+import { DateRange, PromptBatches, Batch, BatchData } from "@/types/ChatGPT";
 import Requests from "@/functions/Requests";
-
-// Mock function to simulate sending a prompt (replace with actual API call later)
-const mockSendPrompt = async (prompt: string, dateRange: DateRange | null): Promise<void> => {
-    // This would be replaced with an actual API call
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, 1000);
-    });
-};
 
 const ChatGPTPromptingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string | null>("new");
     const [prompt, setPrompt] = useState("");
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-    const [batches, setBatches] = useState<PromptBatches>();
+    const [batches, setBatches] = useState<PromptBatches>({ completed: [], failed: [], in_progress: [] });
+
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
-    const [selectedBatch, setSelectedBatch] = useState<PromptBatches | null>(null);
+    const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
+    const [selectedBatchData, setSelectedBatchData] = useState<BatchData | null>(null);
 
     // Fetch batches on component mount
     useEffect(() => {
@@ -50,6 +42,8 @@ const ChatGPTPromptingPage: React.FC = () => {
         Requests.get<PromptBatches>({
             url: "/ai/batches",
             success(data) {
+                console.log(data);
+
                 setBatches(data);
             },
             before() {
@@ -84,6 +78,11 @@ const ChatGPTPromptingPage: React.FC = () => {
                     message: "Prompt was successfully sent to openai for processing",
                     color: "green",
                 });
+                // Refresh batches after successful creation
+                fetchBatches();
+                // Reset form
+                setPrompt("");
+                setDateRange([null, null]);
             },
             before() {
                 setIsSending(true);
@@ -94,13 +93,27 @@ const ChatGPTPromptingPage: React.FC = () => {
         });
     };
 
-    const handleBatchSelect = (batch: PromptBatch) => {
+    const handleBatchSelect = (batch: Batch) => {
+        if (!batch) return;
         setSelectedBatch(batch);
+
+        Requests.get<BatchData>({
+            url: "/ai/batch",
+            params: { batch_id: batch.id },
+
+            before() {
+                setSelectedBatchData(null);
+            },
+            success(data) {
+                console.log(data);
+                setSelectedBatchData(data);
+            },
+        });
     };
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "running":
+            case "in_progress":
                 return <Badge color="blue">Running</Badge>;
             case "completed":
                 return <Badge color="green">Completed</Badge>;
@@ -109,6 +122,10 @@ const ChatGPTPromptingPage: React.FC = () => {
             default:
                 return <Badge color="gray">Unknown</Badge>;
         }
+    };
+
+    const getBatchCount = (type: keyof PromptBatches) => {
+        return batches[type]?.length || 0;
     };
 
     return (
@@ -120,13 +137,9 @@ const ChatGPTPromptingPage: React.FC = () => {
             <Tabs value={activeTab} onChange={setActiveTab}>
                 <Tabs.List>
                     <Tabs.Tab value="new">New Prompt</Tabs.Tab>
-                    <Tabs.Tab value="running">
-                        Running ({batches.filter((b) => b.status === "running").length})
-                    </Tabs.Tab>
-                    <Tabs.Tab value="completed">
-                        Completed ({batches.filter((b) => b.status === "completed").length})
-                    </Tabs.Tab>
-                    <Tabs.Tab value="failed">Failed ({batches.filter((b) => b.status === "failed").length})</Tabs.Tab>
+                    <Tabs.Tab value="in_progress">Running ({getBatchCount("in_progress")})</Tabs.Tab>
+                    <Tabs.Tab value="completed">Completed ({getBatchCount("completed")})</Tabs.Tab>
+                    <Tabs.Tab value="failed">Failed ({getBatchCount("failed")})</Tabs.Tab>
                 </Tabs.List>
 
                 <Tabs.Panel value="new" p="md">
@@ -163,9 +176,9 @@ const ChatGPTPromptingPage: React.FC = () => {
                     </Card>
                 </Tabs.Panel>
 
-                <Tabs.Panel value="running" p="md">
+                <Tabs.Panel value="in_progress" p="md">
                     <DisplayBatches
-                        batches={batches.filter((b) => b.status === "running")}
+                        batches={batches.in_progress}
                         isLoading={isLoading}
                         onBatchSelect={handleBatchSelect}
                         onRefresh={fetchBatches}
@@ -175,7 +188,7 @@ const ChatGPTPromptingPage: React.FC = () => {
 
                 <Tabs.Panel value="completed" p="md">
                     <DisplayBatches
-                        batches={batches.filter((b) => b.status === "completed")}
+                        batches={batches.completed}
                         isLoading={isLoading}
                         onBatchSelect={handleBatchSelect}
                         onRefresh={fetchBatches}
@@ -185,7 +198,7 @@ const ChatGPTPromptingPage: React.FC = () => {
 
                 <Tabs.Panel value="failed" p="md">
                     <DisplayBatches
-                        batches={batches.filter((b) => b.status === "failed")}
+                        batches={batches.failed}
                         isLoading={isLoading}
                         onBatchSelect={handleBatchSelect}
                         onRefresh={fetchBatches}
@@ -198,11 +211,11 @@ const ChatGPTPromptingPage: React.FC = () => {
 };
 
 interface DisplayBatchesProps {
-    batches: PromptBatch[];
+    batches: Batch[];
     isLoading: boolean;
-    onBatchSelect: (batch: PromptBatch) => void;
+    onBatchSelect: (batch: Batch) => void;
     onRefresh: () => void;
-    selectedBatch: PromptBatch | null;
+    selectedBatch: Batch | null;
 }
 
 const DisplayBatches: React.FC<DisplayBatchesProps> = ({
@@ -236,7 +249,7 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case "running":
+            case "in_progress":
                 return <Badge color="blue">Running</Badge>;
             case "completed":
                 return <Badge color="green">Completed</Badge>;
@@ -247,10 +260,31 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
         }
     };
 
+    // Parse date range from JSON string
+    const parseDateRange = (dateRangeStr: string) => {
+        try {
+            const range = JSON.parse(dateRangeStr);
+            return {
+                from: range.from ? new Date(range.from) : null,
+                to: range.to ? new Date(range.to) : null,
+            };
+        } catch (e) {
+            return { from: null, to: null };
+        }
+    };
+
+    // Function to handle batch click and open batch details
+    const handleBatchClick = (batch: Batch) => {
+        onBatchSelect(batch);
+        console.log(batch);
+        // Here you would fetch the email list for this batch
+        // This is where you would insert batch opening code
+    };
+
     return (
         <Group grow align="flex-start">
             <Card withBorder shadow="sm" radius="md" p={0} style={{ height: "500px" }}>
-                <Group p="xs" position="apart">
+                <Group p="xs" justify="apart">
                     <Text fw={500}>Prompts</Text>
                     <ActionIcon onClick={onRefresh} variant="subtle">
                         <IconRefresh size={16} />
@@ -258,37 +292,39 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
                 </Group>
                 <Divider />
                 <ScrollArea style={{ height: "450px" }}>
-                    <Stack spacing="xs" p="xs">
-                        {batches.map((batch) => (
-                            <Paper
-                                key={batch.id}
-                                withBorder
-                                p="sm"
-                                onClick={() => onBatchSelect(batch)}
-                                style={{
-                                    cursor: "pointer",
-                                    backgroundColor:
-                                        selectedBatch?.id === batch.id ? "var(--mantine-color-blue-light)" : undefined,
-                                }}
-                            >
-                                <Group position="apart" mb="xs">
-                                    <Text size="sm" fw={500} lineClamp={1}>
-                                        {batch.prompt}
+                    <Stack gap={"xs"} p="xs">
+                        {batches.map((batch) => {
+                            const dateRange = parseDateRange(batch.db.date_range);
+                            return (
+                                <Paper
+                                    key={batch.db.id}
+                                    withBorder
+                                    p="sm"
+                                    onClick={() => handleBatchClick(batch)}
+                                    style={{
+                                        cursor: "pointer",
+                                        backgroundColor:
+                                            selectedBatch?.db.id === batch.db.id
+                                                ? "var(--mantine-color-blue-light)"
+                                                : undefined,
+                                    }}
+                                >
+                                    <Group justify="apart" mb="xs">
+                                        <Text size="sm" fw={500} lineClamp={1}>
+                                            {batch.db.prompt}
+                                        </Text>
+                                        {getStatusBadge(batch.status)}
+                                    </Group>
+                                    <Text size="xs" c="dimmed">
+                                        Created: {formatDate(batch.db.created_at)}
                                     </Text>
-                                    {getStatusBadge(batch.status)}
-                                </Group>
-                                <Text size="xs" c="dimmed">
-                                    Created: {formatDate(batch.createdAt)}
-                                </Text>
-                                <Text size="xs" c="dimmed">
-                                    Date Range:{" "}
-                                    {batch.dateRange.from ? new Date(batch.dateRange.from).toLocaleDateString() : "All"}
-                                    {batch.dateRange.to
-                                        ? ` to ${new Date(batch.dateRange.to).toLocaleDateString()}`
-                                        : ""}
-                                </Text>
-                            </Paper>
-                        ))}
+                                    <Text size="xs" c="dimmed">
+                                        Date Range: {dateRange.from ? dateRange.from.toLocaleDateString() : "All"}
+                                        {dateRange.to ? ` to ${dateRange.to.toLocaleDateString()}` : ""}
+                                    </Text>
+                                </Paper>
+                            );
+                        })}
                     </Stack>
                 </ScrollArea>
             </Card>
@@ -297,26 +333,26 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
                 {selectedBatch ? (
                     <ScrollArea style={{ height: "100%" }}>
                         <Title order={4} mb="xs">
-                            {selectedBatch.prompt}
+                            {selectedBatch.db.prompt}
                         </Title>
                         <Group mb="md">
                             {getStatusBadge(selectedBatch.status)}
-                            <Text size="sm">Created: {formatDate(selectedBatch.createdAt)}</Text>
-                            {selectedBatch.completedAt && (
-                                <Text size="sm">Completed: {formatDate(selectedBatch.completedAt)}</Text>
-                            )}
+                            <Text size="sm">Created: {formatDate(selectedBatch.db.created_at)}</Text>
                         </Group>
                         <Text size="sm" mb="md">
-                            Date Range:{" "}
-                            {selectedBatch.dateRange.from
-                                ? new Date(selectedBatch.dateRange.from).toLocaleDateString()
-                                : "All emails"}
-                            {selectedBatch.dateRange.to
-                                ? ` to ${new Date(selectedBatch.dateRange.to).toLocaleDateString()}`
-                                : ""}
+                            {(() => {
+                                const dateRange = parseDateRange(selectedBatch.db.date_range);
+                                return (
+                                    <>
+                                        Date Range:{" "}
+                                        {dateRange.from ? dateRange.from.toLocaleDateString() : "All emails"}
+                                        {dateRange.to ? ` to ${dateRange.to.toLocaleDateString()}` : ""}
+                                    </>
+                                );
+                            })()}
                         </Text>
                         <Divider my="md" />
-                        {selectedBatch.status === "running" ? (
+                        {selectedBatch.status === "in_progress" ? (
                             <Group justify="center" p="xl">
                                 <Loader />
                                 <Text>Processing prompt...</Text>
@@ -324,7 +360,7 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
                         ) : selectedBatch.status === "failed" ? (
                             <Text c="red">Failed to process this prompt. Please try again.</Text>
                         ) : (
-                            <Text>{selectedBatch.result || "No result available"}</Text>
+                            <Text>{selectedBatch.db.processed_info || "No result available"}</Text>
                         )}
                     </ScrollArea>
                 ) : (
