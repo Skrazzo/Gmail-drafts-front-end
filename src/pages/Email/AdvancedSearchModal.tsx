@@ -80,7 +80,7 @@ export default function AdvancedSearchModal(props: Props) {
         }
     };
 
-    const handleEmailsFromClipboard = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const handleEmailsFromClipboard = async (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         try {
             const text = await navigator.clipboard.readText();
             const emails = text

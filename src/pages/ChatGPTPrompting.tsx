@@ -16,17 +16,14 @@ import {
     ScrollArea,
     Divider,
     Skeleton,
-    List,
-    Box,
-    Table,
     ThemeIcon,
-    Avatar,
     CloseButton,
+    Flex,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { DatePickerInput } from "@mantine/dates";
-import { IconCalendar, IconChevronRight, IconMail, IconRefresh, IconSend } from "@tabler/icons-react";
-import { DateRange, PromptBatches, Batch, BatchData, EmailInfo } from "@/types/ChatGPT";
+import { IconCalendar, IconRefresh, IconSend } from "@tabler/icons-react";
+import { PromptBatches, Batch, BatchData, EmailInfo } from "@/types/ChatGPT";
 import Requests from "@/functions/Requests";
 
 const ChatGPTPromptingPage: React.FC = () => {
@@ -78,7 +75,7 @@ const ChatGPTPromptingPage: React.FC = () => {
                 to: dateRange[1],
                 prompt: prompt.trim(),
             },
-            success(data) {
+            success(_data) {
                 notifications.show({
                     title: "Created",
                     message: "Prompt was successfully sent to openai for processing",
@@ -123,19 +120,6 @@ const ChatGPTPromptingPage: React.FC = () => {
 
     const handleEmailSelect = (email: EmailInfo) => {
         setSelectedEmail((prev) => (prev?.id === email.id ? null : email));
-    };
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "in_progress":
-                return <Badge color="blue">Running</Badge>;
-            case "completed":
-                return <Badge color="green">Completed</Badge>;
-            case "failed":
-                return <Badge color="red">Failed</Badge>;
-            default:
-                return <Badge color="gray">Unknown</Badge>;
-        }
     };
 
     const getBatchCount = (type: keyof PromptBatches) => {
@@ -313,8 +297,8 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
         try {
             const range = JSON.parse(dateRangeStr);
             return {
-                from: range.from ? range.from : null,
-                to: range.to ? range.to : null,
+                from: range[0] ? range[0] : null,
+                to: range[1] ? range[1] : null,
             };
         } catch (e) {
             return { from: null, to: null };
@@ -331,6 +315,7 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
     };
 
     // Extract date range in a consistent format
+
     const getFormattedDateRange = (dateRangeString: string) => {
         try {
             const { from, to } = parseDateRange(dateRangeString);
@@ -456,7 +441,7 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
 
                                     {/* Iterate through each email record */}
                                     {Object.entries(selectedBatchData.emails).map(
-                                        ([email, emailRecord]: [string, EmailInfo[]], idx) => (
+                                        ([email, emailRecord]: [string, EmailInfo[]], _idx) => (
                                             <div key={email}>
                                                 {/* Display the email address as a section title */}
                                                 <Text size="sm" fw={600}>
@@ -504,45 +489,43 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
             </Group>
 
             {/* Email detail section that shows when an email is selected */}
-            {/* {selectedEmail && ( */}
-            {/*     <Card withBorder shadow="sm" radius="md" p="md"> */}
-            {/*         <Group justify="space-evenly" mb="md"> */}
-            {/*             <Title order={4}>Email Details</Title> */}
-            {/*             <CloseButton onClick={() => onEmailSelect(selectedEmail)} /> */}
-            {/*         </Group> */}
-            {/**/}
-            {/*         <Group justify="space-evenly" mb="md"> */}
-            {/*             <div> */}
-            {/*                 <Text fw={700} size="lg"> */}
-            {/*                     {selectedEmail.subject || "(No subject)"} */}
-            {/*                 </Text> */}
-            {/*                 <Text size="sm" c="dimmed"> */}
-            {/*                     Type: {selectedEmail.type} • Date: {formatDate(selectedEmail.email_date)} */}
-            {/*                 </Text> */}
-            {/*             </div> */}
-            {/*         </Group> */}
-            {/**/}
-            {/*         <Divider my="md" label="Email Content" labelPosition="center" /> */}
-            {/**/}
-            {/*         <Paper p="md" withBorder mb="md"> */}
-            {/*             <ScrollArea style={{ maxHeight: "300px" }}> */}
-            {/*                 <div style={{ whiteSpace: "pre-wrap" }}> */}
-            {/*                     {selectedEmail.body || "No email content available"} */}
-            {/*                 </div> */}
-            {/*             </ScrollArea> */}
-            {/*         </Paper> */}
-            {/**/}
-            {/*         <Divider my="md" label="ChatGPT Analysis" labelPosition="center" /> */}
-            {/**/}
-            {/*         <Paper p="md" withBorder> */}
-            {/*             <ScrollArea style={{ maxHeight: "300px" }}> */}
-            {/*                 <div style={{ whiteSpace: "pre-wrap" }}> */}
-            {/*                     {selectedEmail.chat_gpt || "No analysis available"} */}
-            {/*                 </div> */}
-            {/*             </ScrollArea> */}
-            {/*         </Paper> */}
-            {/*     </Card> */}
-            {/* )} */}
+            {selectedEmail && (
+                <Card withBorder shadow="sm" radius="md" p="md">
+                    <Flex align={"center"} justify={"space-between"} w={"100%"} mb="md">
+                        <Title order={4}>Email Details</Title>
+                        <CloseButton onClick={() => onEmailSelect(selectedEmail)} />
+                    </Flex>
+
+                    <Flex direction={"column"} mb="md">
+                        <Text fw={700} size="lg">
+                            {selectedEmail.subject || "(No subject)"}
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                            Type: {selectedEmail.type} • Date: {formatDate(selectedEmail.email_date)}
+                        </Text>
+                    </Flex>
+
+                    <Divider my="md" label="Email Content" labelPosition="center" />
+
+                    <Paper p="md" withBorder mb="md">
+                        <ScrollArea style={{ maxHeight: "300px" }}>
+                            <div style={{ whiteSpace: "pre-wrap" }}>
+                                {selectedEmail.body || "No email content available"}
+                            </div>
+                        </ScrollArea>
+                    </Paper>
+
+                    <Divider my="md" label="ChatGPT Analysis" labelPosition="center" />
+
+                    <Paper p="md" withBorder>
+                        <ScrollArea style={{ maxHeight: "300px" }}>
+                            <div style={{ whiteSpace: "pre-wrap" }}>
+                                {selectedEmail.chat_gpt || "No analysis available"}
+                            </div>
+                        </ScrollArea>
+                    </Paper>
+                </Card>
+            )}
         </Stack>
     );
 };
