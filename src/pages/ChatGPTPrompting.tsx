@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
     Container,
     Title,
@@ -19,12 +19,15 @@ import {
     ThemeIcon,
     CloseButton,
     Flex,
+    TextInput,
+    Highlight,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { DatePickerInput } from "@mantine/dates";
-import { IconCalendar, IconRefresh, IconSend } from "@tabler/icons-react";
+import { IconCalendar, IconRefresh, IconSend, IconSearch } from "@tabler/icons-react";
 import { PromptBatches, Batch, BatchData, EmailInfo } from "@/types/ChatGPT";
 import Requests from "@/functions/Requests";
+import { useIntersection } from "@mantine/hooks";
 
 const ChatGPTPromptingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string | null>("new");
@@ -259,6 +262,34 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
     onEmailSelect,
     formatDate,
 }) => {
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Process emails into a flat array for virtual scrolling and filtering
+    const allEmails = useMemo(() => {
+        if (!selectedBatchData?.emails) return [];
+
+        const emails: { emailAddress: string; emailInfo: EmailInfo }[] = [];
+
+        Object.entries(selectedBatchData.emails).forEach(([emailAddress, emailInfos]) => {
+            emailInfos.forEach((emailInfo) => {
+                emails.push({ emailAddress, emailInfo });
+            });
+        });
+
+        return emails;
+    }, [selectedBatchData]);
+
+    // Filter emails based on search query
+    const filteredEmails = useMemo(() => {
+        if (!searchQuery.trim()) return allEmails;
+
+        return allEmails.filter(
+            ({ emailInfo }) =>
+                emailInfo.chat_gpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                emailInfo.subject.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [allEmails, searchQuery]);
+
     if (isLoading) {
         return (
             <Group justify="center" p="xl">
@@ -266,8 +297,6 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
             </Group>
         );
     }
-
-    console.log(selectedBatchData);
 
     if (batches.length === 0) {
         return (
@@ -437,50 +466,24 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
                                 <Text>No emails processed for this prompt.</Text>
                             ) : (
                                 <Stack gap="xs">
-                                    {/* Count total emails across all records */}
+                                    {/* Search functionality */}
+                                    <TextInput
+                                        placeholder="Search in ChatGPT responses"
+                                        leftSection={<IconSearch size={16} />}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.currentTarget.value)}
+                                        mb="sm"
+                                    />
 
-                                    {/* Iterate through each email record */}
-                                    {Object.entries(selectedBatchData.emails).map(
-                                        ([email, emailRecord]: [string, EmailInfo[]], _idx) => (
-                                            <div key={email}>
-                                                {/* Display the email address as a section title */}
-                                                <Text size="sm" fw={600}>
-                                                    {email}
-                                                </Text>
-
-                                                {/* Display each email in this thread */}
-                                                {emailRecord.map((email) => (
-                                                    <Paper
-                                                        key={email.id}
-                                                        withBorder
-                                                        p="sm"
-                                                        mt="xs"
-                                                        onClick={() => onEmailSelect(email)}
-                                                        style={{
-                                                            cursor: "pointer",
-                                                            backgroundColor:
-                                                                selectedEmail?.id === email.id
-                                                                    ? "var(--mantine-color-blue-light)"
-                                                                    : undefined,
-                                                        }}
-                                                    >
-                                                        <Group justify="space-between" mb="xs">
-                                                            <Text size="sm" fw={500} lineClamp={2}>
-                                                                {email.subject || "(No subject)"}
-                                                            </Text>
-                                                            <Badge size="sm">{email.type}</Badge>
-                                                        </Group>
-                                                        <Text size="xs" c="dimmed" mb="xs">
-                                                            Date: {formatDate(email.email_date)}
-                                                        </Text>
-                                                        <Text size="xs" lineClamp={4}>
-                                                            {getPreviewResponse(email.chat_gpt)}
-                                                        </Text>
-                                                    </Paper>
-                                                ))}
-                                            </div>
-                                        )
-                                    )}
+                                    {/* Virtualized email list */}
+                                    <VirtualizedEmailList
+                                        emails={filteredEmails}
+                                        searchQuery={searchQuery}
+                                        selectedEmail={selectedEmail}
+                                        onEmailSelect={onEmailSelect}
+                                        formatDate={formatDate}
+                                        getPreviewResponse={getPreviewResponse}
+                                    />
                                 </Stack>
                             )}
                         </ScrollArea>
@@ -527,6 +530,148 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
                 </Card>
             )}
         </Stack>
+    );
+};
+
+interface VirtualizedEmailListProps {
+    emails: { emailAddress: string; emailInfo: EmailInfo }[];
+    searchQuery: string;
+    selectedEmail: EmailInfo | null;
+    onEmailSelect: (email: EmailInfo) => void;
+    formatDate: (dateString: string) => string;
+    getPreviewResponse: (response: string) => string;
+}
+
+const VirtualizedEmailList: React.FC<VirtualizedEmailListProps> = ({
+    emails,
+    searchQuery,
+    selectedEmail,
+    onEmailSelect,
+    formatDate,
+    getPreviewResponse,
+}) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 });
+    const BATCH_SIZE = 10;
+
+    // Previous and next batch refs for intersection observers
+    // const topRef = useRef<HTMLDivElement>(null);
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const [isBottomVisible, setBottomVisible] = useState<boolean>(false);
+
+    // Intersection observers for infinite scrolling
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // Update state when intersection changes
+                setBottomVisible(entry.isIntersecting);
+                if (entry.isIntersecting) {
+                    console.log("Show more");
+                    setVisibleRange((prev) => ({
+                        start: prev.start,
+                        end: Math.min(emails.length, prev.end + BATCH_SIZE),
+                    }));
+                }
+            },
+            {
+                root: null, // viewport
+                rootMargin: "0px",
+                threshold: 0.2, // 10% of element visible
+            }
+        );
+
+        const currentElement = bottomRef.current; // Capture current value
+
+        if (currentElement) {
+            observer.observe(currentElement);
+        }
+
+        // Cleanup function
+        return () => {
+            if (currentElement) {
+                observer.unobserve(currentElement);
+            }
+        };
+    }, [emails]); // Run observer every time when email list changes
+
+    // Reset visible range when emails change
+    useEffect(() => {
+        setVisibleRange({ start: 0, end: Math.min(BATCH_SIZE, emails.length) });
+    }, [emails]);
+
+    // Group emails by email address for display
+    const groupedEmails = useMemo(() => {
+        const grouped: Record<string, EmailInfo[]> = {};
+
+        // Only process emails in the visible range
+        emails.slice(visibleRange.start, visibleRange.end).forEach(({ emailAddress, emailInfo }) => {
+            if (!grouped[emailAddress]) {
+                grouped[emailAddress] = [];
+            }
+            grouped[emailAddress].push(emailInfo);
+        });
+
+        return grouped;
+    }, [emails, visibleRange]);
+
+    if (emails.length === 0) {
+        return <Text>No emails found{searchQuery ? " matching your search" : ""}.</Text>;
+    }
+
+    return (
+        <div style={{ position: "relative" }} ref={scrollRef}>
+            {/* Visible emails */}
+            {Object.entries(groupedEmails).map(([emailAddress, emailInfos], idx) => (
+                <div key={emailAddress}>
+                    <Text size="sm" fw={600} mt={idx !== 0 ? 16 : 0} ml={13}>
+                        {emailAddress}
+                    </Text>
+
+                    {emailInfos.map((email) => (
+                        <Paper
+                            key={email.id}
+                            withBorder
+                            p="sm"
+                            mt="xs"
+                            onClick={() => onEmailSelect(email)}
+                            style={{
+                                cursor: "pointer",
+                                backgroundColor:
+                                    selectedEmail?.id === email.id ? "var(--mantine-color-blue-light)" : undefined,
+                            }}
+                        >
+                            <Group justify="space-between" mb="xs">
+                                <Highlight size="sm" fw={500} lineClamp={2} highlight={searchQuery}>
+                                    {email.subject || "(No subject)"}
+                                </Highlight>
+                                <Badge size="sm" color={email.type === "Sent" ? "gray" : "blue"}>
+                                    {email.type}
+                                </Badge>
+                            </Group>
+                            <Text size="xs" c="dimmed" mb="xs">
+                                Date: {formatDate(email.email_date)}
+                            </Text>
+                            <Highlight size="xs" highlight={searchQuery} lineClamp={4}>
+                                {getPreviewResponse(email.chat_gpt)}
+                            </Highlight>
+                        </Paper>
+                    ))}
+                </div>
+            ))}
+
+            {/* Bottom sentinel for loading more items */}
+            {visibleRange.end < emails.length && (
+                <div ref={bottomRef} style={{ height: "20px" }}>
+                    <Loader size="sm" />
+                </div>
+            )}
+
+            {/* Total count indicator */}
+            <Text size="xs" ta="center" c="dimmed" mt="sm">
+                Showing {visibleRange.end - visibleRange.start} of {emails.length} emails
+                {searchQuery ? ` matching "${searchQuery}"` : ""}
+            </Text>
+        </div>
     );
 };
 
