@@ -27,7 +27,6 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconRefresh, IconSend, IconSearch } from "@tabler/icons-react";
 import { PromptBatches, Batch, BatchData, EmailInfo } from "@/types/ChatGPT";
 import Requests from "@/functions/Requests";
-import { useIntersection } from "@mantine/hooks";
 
 const ChatGPTPromptingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string | null>("new");
@@ -557,14 +556,12 @@ const VirtualizedEmailList: React.FC<VirtualizedEmailListProps> = ({
     // Previous and next batch refs for intersection observers
     // const topRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
-    const [isBottomVisible, setBottomVisible] = useState<boolean>(false);
 
     // Intersection observers for infinite scrolling
     useEffect(() => {
         const observer = new IntersectionObserver(
             ([entry]) => {
                 // Update state when intersection changes
-                setBottomVisible(entry.isIntersecting);
                 if (entry.isIntersecting) {
                     console.log("Show more");
                     setVisibleRange((prev) => ({

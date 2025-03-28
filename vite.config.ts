@@ -1,10 +1,10 @@
 import { defineConfig } from "vite";
-import reactCompiler from "@vitejs/plugin-react-compiler";
+import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [reactCompiler()],
+    plugins: [react()],
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
