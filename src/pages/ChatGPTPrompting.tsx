@@ -282,10 +282,12 @@ const DisplayBatches: React.FC<DisplayBatchesProps> = ({
     const filteredEmails = useMemo(() => {
         if (!searchQuery.trim()) return allEmails;
 
-        return allEmails.filter(
-            ({ emailInfo }) =>
-                emailInfo.chat_gpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                emailInfo.subject.toLowerCase().includes(searchQuery.toLowerCase())
+        return allEmails.filter(({ emailInfo }) =>
+            emailInfo.chat_gpt
+                ? emailInfo.chat_gpt.toLowerCase().includes(searchQuery.toLowerCase())
+                : "".includes(searchQuery.toLowerCase()) || emailInfo.subject
+                  ? emailInfo.subject.toLowerCase().includes(searchQuery.toLowerCase())
+                  : "".includes(searchQuery.toLowerCase())
         );
     }, [allEmails, searchQuery]);
 
