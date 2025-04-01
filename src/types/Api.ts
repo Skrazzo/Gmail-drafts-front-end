@@ -32,6 +32,8 @@ export interface Tag {
     name: string;
 }
 
+export interface Type extends Tag {}
+
 export interface UnsubscribedData {
     person_name: string | null;
     email_id: string;

@@ -108,5 +108,6 @@ export interface EmailMetadata {
     company_address: string | null;
     postal_code: string | null;
     primary: 0 | 1;
+    last_communication_date: string;
     [key: string]: any;
 }

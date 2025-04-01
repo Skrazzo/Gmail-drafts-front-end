@@ -1,3 +1,6 @@
+import { Tag, Type } from "./Api";
+import { EmailMetadata } from "./Emails";
+
 export interface DraftForm {
     subject: string;
     body: string;
@@ -45,11 +48,16 @@ export interface QueuedDrafts {
     queue: {
         id: number;
         unsubscribe_id: number;
+        data: EmailMetadata | undefined;
         email_to: string;
         email_from: string;
         email_body: string;
         email_subject: string;
         attachments: string;
         updated_at: string;
+        unsubscribed?: boolean;
+        unsubcribe_reason?: string;
     }[];
+    tags: Tag[];
+    types: Type[];
 }
