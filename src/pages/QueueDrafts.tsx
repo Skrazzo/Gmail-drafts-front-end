@@ -82,16 +82,40 @@ export default function QueueDrafts() {
         }
     };
 
+    const deleteSelectedEmails = async () => {
+        const ids = selectedIds;
+        if (ids.length === 0) {
+            notifications.show({
+                withBorder: true,
+                color: "red",
+                radius: "md",
+                title: "0 Selected",
+                message: `Select some emails to delete them`,
+            });
+            return;
+        }
+
+        const decision = confirm("Are you sure?");
+        if (!decision) {
+            console.log("Deletion canceled");
+            return;
+        }
+
+        Requests.post({
+            url: "/drafts/delete",
+            data: { ids: selectedIds },
+            before() {
+                setSelectedIds([]);
+            },
+            success(data) {
+                location.reload();
+            },
+        });
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
-
-    const selectAllHandler = () => {
-        const ids = selectedIds;
-        console.log(ids);
-        const queue = nextInQueue;
-        console.log(queue);
-    };
 
     return (
         <>
@@ -103,16 +127,8 @@ export default function QueueDrafts() {
                 </Button>
             ) : (
                 <>
-                    <Flex mx={9} my={9} gap={8}>
-                        <ActionIcon size={22} onClick={selectAllHandler}>
-                            <IconSelectAll size={16} />
-                        </ActionIcon>
-                        <ActionIcon size={22} variant="outline">
-                            <IconTransferVertical size={16} />
-                        </ActionIcon>
-                    </Flex>
                     <Flex gap={16} mx={9} mt={16} align={"center"}>
-                        <Button disabled={nextInQueue.queue.length === 0} onClick={createDraftHandler}>
+                        <Button disabled={selectedIds.length === 0} onClick={createDraftHandler}>
                             Create {selectedIds.length} drafts
                         </Button>
 
@@ -125,7 +141,13 @@ export default function QueueDrafts() {
 
                             <Menu.Dropdown>
                                 <Menu.Label>Options</Menu.Label>
-                                <Menu.Item leftSection={<IconFileMinus size={18} />}>Delete selected</Menu.Item>
+                                <Menu.Item
+                                    disabled={selectedIds.length === 0}
+                                    onClick={deleteSelectedEmails}
+                                    leftSection={<IconFileMinus size={18} />}
+                                >
+                                    Delete selected
+                                </Menu.Item>
                                 <Menu.Item
                                     color="red"
                                     leftSection={<IconTrash size={18} />}

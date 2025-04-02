@@ -1,6 +1,18 @@
 import { QueuedDrafts, Tag } from "@/types";
-import { Center, Checkbox, Flex, Loader, Paper, Skeleton, Table, Text, Title, Tooltip } from "@mantine/core";
-import { IconMailboxOff } from "@tabler/icons-react";
+import {
+    ActionIcon,
+    Center,
+    Checkbox,
+    Flex,
+    Loader,
+    Paper,
+    Skeleton,
+    Table,
+    Text,
+    Title,
+    Tooltip,
+} from "@mantine/core";
+import { IconMailboxOff, IconSelectAll, IconTransferVertical } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import moment from "moment";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -90,7 +102,7 @@ export default function QueueTable({
                     if (checkForTag(nextInQueue.tags, email.data.company_tags, badTag)) {
                         tmp.push({
                             send: false,
-                            checked: true,
+                            checked: false,
                             type: "error",
                             reason: `Company contains REVIEWED2025 tag`,
                             email: email.email_to,
@@ -109,7 +121,6 @@ export default function QueueTable({
                 const last = dayjs(email.data.last_communication_date);
                 const diff = dayjs().diff(last, "day");
 
-                // TODO: Change this back to 60
                 if (diff < 60) {
                     tmp.push({
                         send: false,
@@ -261,10 +272,72 @@ export default function QueueTable({
         </>
     ));
 
+    const selectAllHandler = () => {
+        if (!sendInfo || !nextInQueue) {
+            return;
+        }
+
+        const infos = sendInfo;
+        const queue = nextInQueue.queue;
+
+        // Count checked boxes
+        const checked = infos.reduce((sum, info) => {
+            if (info.checked) return sum + 1;
+            return sum;
+        }, 0);
+
+        if (checked !== queue.length) {
+            // Select all
+            const allChecked = sendInfo.map((i) => {
+                return {
+                    ...i,
+                    checked: true,
+                };
+            }) as SendInfo[];
+
+            setSendInfo(allChecked);
+        } else {
+            // Deleselct all
+            const allChecked = sendInfo.map((i) => {
+                return {
+                    ...i,
+                    checked: false,
+                };
+            }) as SendInfo[];
+
+            setSendInfo(allChecked);
+        }
+    };
+
+    const handleInvert = () => {
+        if (!sendInfo || !nextInQueue) {
+            return;
+        }
+
+        const infos = sendInfo;
+        const inverted = infos.map((i) => ({
+            ...i,
+            checked: !i.checked,
+        }));
+
+        setSendInfo(inverted);
+    };
+
     return (
-        <Table>
-            <Table.Thead>{tableHeaders}</Table.Thead>
-            <Table.Tbody>{tableRows}</Table.Tbody>
-        </Table>
+        <>
+            <Table>
+                <Table.Thead>{tableHeaders}</Table.Thead>
+                <Table.Tbody>{tableRows}</Table.Tbody>
+            </Table>
+
+            <Flex mx={9} my={9} gap={8}>
+                <ActionIcon size={22} onClick={selectAllHandler}>
+                    <IconSelectAll size={16} />
+                </ActionIcon>
+                <ActionIcon size={22} variant="outline" onClick={handleInvert}>
+                    <IconTransferVertical size={16} />
+                </ActionIcon>
+            </Flex>
+        </>
     );
 }
