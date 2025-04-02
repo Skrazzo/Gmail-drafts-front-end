@@ -54,7 +54,9 @@ export default function QueueTable({
                     email: email.email_to,
                     type: "error",
                     queueId: email.id,
-                    reason: email.unsubcribe_reason ? email.unsubcribe_reason : "Person is in unsubcribe list",
+                    reason: email.unsubscribe_reason
+                        ? `Unsubscribe list: ${email.unsubscribe_reason}`
+                        : "Person is in unsubcribe list",
                 });
 
                 continue;
@@ -107,6 +109,7 @@ export default function QueueTable({
                 const last = dayjs(email.data.last_communication_date);
                 const diff = dayjs().diff(last, "day");
 
+                // TODO: Change this back to 60
                 if (diff < 60) {
                     tmp.push({
                         send: false,
@@ -123,7 +126,16 @@ export default function QueueTable({
             tmp.push({ send, checked: true, email: email.email_to, queueId: email.id });
         }
 
-        setSendInfo(tmp);
+        // Rebuild tmp array brick by brick, and check for duplicates
+        const deduplicated = new Map();
+        for (const info of tmp) {
+            if (!deduplicated.has(info.email)) {
+                deduplicated.set(info.email, info);
+            }
+        }
+
+        const deduplicatedList = Array.from(deduplicated).map((arr) => arr[1]);
+        setSendInfo(deduplicatedList);
     }
 
     useEffect(() => {

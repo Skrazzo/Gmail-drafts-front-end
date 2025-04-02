@@ -1,10 +1,10 @@
 import QueueTable from "@/components/ui/QueueDrafts/QueueTable";
 import { AxiosResponse, QueuedDrafts } from "@/types";
-import { Button, Flex, Text, Title, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Flex, Menu, Text, Title, Tooltip } from "@mantine/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { IconTrash } from "@tabler/icons-react";
+import { IconFileMinus, IconSelectAll, IconTransferVertical, IconTrash } from "@tabler/icons-react";
 import Requests from "@/functions/Requests";
 
 export default function QueueDrafts() {
@@ -86,6 +86,13 @@ export default function QueueDrafts() {
         fetchData();
     }, []);
 
+    const selectAllHandler = () => {
+        const ids = selectedIds;
+        console.log(ids);
+        const queue = nextInQueue;
+        console.log(queue);
+    };
+
     return (
         <>
             <Title mb={16}>Queued drafts</Title>
@@ -95,22 +102,45 @@ export default function QueueDrafts() {
                     Loading
                 </Button>
             ) : (
-                <Flex gap={16} mt={16} align={"center"}>
-                    <Button disabled={nextInQueue.queue.length === 0} onClick={createDraftHandler}>
-                        Create {selectedIds.length} drafts
-                    </Button>
-                    <Tooltip label={"Delete all drafts from queue"}>
-                        <Button
-                            disabled={nextInQueue.queue.length === 0}
-                            onClick={removeQueueHandler}
-                            variant="outline"
-                        >
-                            <IconTrash />
+                <>
+                    <Flex mx={9} my={9} gap={8}>
+                        <ActionIcon size={22} onClick={selectAllHandler}>
+                            <IconSelectAll size={16} />
+                        </ActionIcon>
+                        <ActionIcon size={22} variant="outline">
+                            <IconTransferVertical size={16} />
+                        </ActionIcon>
+                    </Flex>
+                    <Flex gap={16} mx={9} mt={16} align={"center"}>
+                        <Button disabled={nextInQueue.queue.length === 0} onClick={createDraftHandler}>
+                            Create {selectedIds.length} drafts
                         </Button>
-                    </Tooltip>
-                    <Text c="dimmed">{nextInQueue.totalInQueue} total drafts left</Text>
-                    <Text c="dimmed">{nextInQueue.draftsInGmail} drafts are in gmail</Text>
-                </Flex>
+
+                        <Menu>
+                            <Menu.Target>
+                                <Button color="red" variant="outline">
+                                    <IconTrash />
+                                </Button>
+                            </Menu.Target>
+
+                            <Menu.Dropdown>
+                                <Menu.Label>Options</Menu.Label>
+                                <Menu.Item leftSection={<IconFileMinus size={18} />}>Delete selected</Menu.Item>
+                                <Menu.Item
+                                    color="red"
+                                    leftSection={<IconTrash size={18} />}
+                                    onClick={removeQueueHandler}
+                                    disabled={nextInQueue.queue.length === 0}
+                                >
+                                    Delete all from queue
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
+
+                        <Text c="dimmed">{nextInQueue.totalInQueue} total drafts left</Text>
+                        <Text c="dimmed">{nextInQueue.draftsInGmail} drafts are in gmail</Text>
+                    </Flex>
+                </>
             )}
         </>
     );

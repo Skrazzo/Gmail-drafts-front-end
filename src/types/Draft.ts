@@ -56,7 +56,7 @@ export interface QueuedDrafts {
         attachments: string;
         updated_at: string;
         unsubscribed?: boolean;
-        unsubcribe_reason?: string;
+        unsubscribe_reason?: string;
     }[];
     tags: Tag[];
     types: Type[];
