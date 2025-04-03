@@ -16,6 +16,7 @@ interface GetProps<T> {
     before?: () => void;
     finally?: () => void;
     success?: (data: T) => void;
+    error?: (data: string) => void;
 }
 
 class Requests {
@@ -42,6 +43,7 @@ class Requests {
             });
 
             console.error(`Request error: ${err} for ${props.url}`);
+            props.error?.((err as Error).message);
         } finally {
             props.finally?.();
         }

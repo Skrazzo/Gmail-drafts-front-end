@@ -1,10 +1,10 @@
 import QueueTable from "@/components/ui/QueueDrafts/QueueTable";
 import { AxiosResponse, QueuedDrafts } from "@/types";
-import { ActionIcon, Button, Checkbox, Flex, Menu, Text, Title, Tooltip } from "@mantine/core";
+import { Button, Flex, Menu, Text, Title } from "@mantine/core";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { IconFileMinus, IconSelectAll, IconTransferVertical, IconTrash } from "@tabler/icons-react";
+import { IconFileMinus, IconTrash } from "@tabler/icons-react";
 import Requests from "@/functions/Requests";
 
 export default function QueueDrafts() {
@@ -107,7 +107,7 @@ export default function QueueDrafts() {
             before() {
                 setSelectedIds([]);
             },
-            success(data) {
+            success(_data) {
                 location.reload();
             },
         });

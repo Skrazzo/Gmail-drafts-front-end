@@ -13,9 +13,11 @@ import { Helmet } from "react-helmet";
 import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
 import { Notifications } from "@mantine/notifications";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconChatGPT } from "@/CustomIcons/IconChatGPT";
+import Requests from "@/functions/Requests";
+import { API_URL } from "@/global";
 
 interface Props {
     children: ReactNode;
@@ -26,6 +28,16 @@ export const AppLayout = ({ children, title }: Props) => {
     const [opened, { toggle }] = useDisclosure();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Check if backend token is valid
+        Requests.get({
+            url: "/check-token",
+            error(_data) {
+                window.location.href = `${API_URL}/auth/backend`;
+            },
+        });
+    }, []);
 
     return (
         <AppShell
