@@ -16,6 +16,7 @@ import { Notifications } from "@mantine/notifications";
 import { useEffect, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconChatGPT } from "@/CustomIcons/IconChatGPT";
+import { IconAmazonScraper } from "@/CustomIcons/IconAmazonScraper";
 import Requests from "@/functions/Requests";
 import { API_URL } from "@/global";
 
@@ -76,6 +77,7 @@ export const AppLayout = ({ children, title }: Props) => {
                     <NavbarItem link="/data" icon={<IconDatabase />} text="Sync" />
                     <NavbarItem link="/actions/history" icon={<IconHistory />} text="See action history" />
                     <NavbarItem link="/chatgpt" icon={<IconChatGPT />} text="ChatGPT Analysis" />
+                    <NavbarItem link="/amazon-scraper" icon={<IconAmazonScraper />} text="Amazon Scraper" />
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main>

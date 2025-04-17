@@ -13,6 +13,7 @@ interface PostProps<T> {
 interface GetProps<T> {
     url: string;
     params?: Record<string, any>;
+    headers?: Record<string, any>;
     before?: () => void;
     finally?: () => void;
     success?: (data: T) => void;
@@ -26,7 +27,12 @@ class Requests {
         props.before?.();
         try {
             // Request and check for success state
-            const res = (await axios.get<AxiosResponse<T>>(props.url, { params: props.params || {} })).data;
+            const res = (
+                await axios.get<AxiosResponse<T>>(props.url, {
+                    params: props.params || {},
+                    headers: props.headers || {},
+                })
+            ).data;
             if (res.success) {
                 props.success?.(res.data);
                 return res.data;

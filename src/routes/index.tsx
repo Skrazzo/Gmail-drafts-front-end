@@ -11,6 +11,7 @@ import SyncPage from "@/pages/SyncPage";
 import UnsubscribedPage from "@/pages/UnsubscribedPage";
 import ActionHistory from "../pages/ActionsHistory";
 import ChatGPTPromptingPage from "@/pages/ChatGPTPrompting";
+import AmazonScraper from "@/pages/AmazonScraper";
 
 export const AppRoutes = () => {
     const { user, loading } = useAuth();
@@ -104,6 +105,17 @@ export const AppRoutes = () => {
                     <ProtectedRoute>
                         <AppLayout title="ChatGPT Analysis">
                             <ChatGPTPromptingPage />
+                        </AppLayout>
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/amazon-scraper/"
+                element={
+                    <ProtectedRoute>
+                        <AppLayout title="Amazon Scraper">
+                            <AmazonScraper />
                         </AppLayout>
                     </ProtectedRoute>
                 }
