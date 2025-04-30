@@ -119,7 +119,7 @@ export default function AmazonScraper() {
     };
 
     // Handle folder selection (check/uncheck all files in folder)
-    const handleFolderSelect = (folder: string, files: string[], isSelected: boolean) => {
+    const handleFolderSelect = (_folder: string, files: string[], isSelected: boolean) => {
         if (isSelected) {
             // Remove all files in this folder
             setSelectedFiles((prev) => prev.filter((f) => !files.includes(f)));
@@ -280,7 +280,9 @@ export default function AmazonScraper() {
                                             label={<Text fw={500}>{folder}/</Text>}
                                             checked={isFolderSelected(files)}
                                             indeterminate={isFolderIndeterminate(files)}
-                                            onChange={(e) => handleFolderSelect(folder, files, isFolderSelected(files))}
+                                            onChange={(_e) =>
+                                                handleFolderSelect(folder, files, isFolderSelected(files))
+                                            }
                                             mb={5}
                                         />
                                     )}
