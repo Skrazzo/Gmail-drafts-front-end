@@ -29,14 +29,6 @@ interface EmailFormProps {
 export function EmailForm({ initialData, onSubmit, isReadOnly, loading }: EmailFormProps) {
     const form = useForm<EmailMetadata>({
         initialValues: initialData,
-        validate: {
-            interest: (value) =>
-                value === null || value === ""
-                    ? null
-                    : value >= 0 && value <= 10
-                      ? null
-                      : "Interest must be between 0 and 10",
-        },
     });
 
     const inputSource = JSON.parse(initialData.input_source) as DecodedInputSource;
