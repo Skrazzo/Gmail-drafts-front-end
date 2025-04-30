@@ -5,9 +5,11 @@ import { AxiosResponse } from "@/types";
 interface PostProps<T> {
     url: string;
     data: Record<string, any>;
+    headers?: Record<string, any>;
     before?: () => void;
     finally?: () => void;
     success?: (data: T) => void;
+    error?: (data: string) => void;
 }
 
 interface GetProps<T> {
@@ -60,7 +62,12 @@ class Requests {
 
         try {
             // Request and check for success state
-            const res = (await axios.post<AxiosResponse<T>>(props.url, props.data)).data;
+            const res = (
+                await axios.post<AxiosResponse<T>>(props.url, props.data, {
+                    headers: props.headers || {},
+                })
+            ).data;
+
             if (res.success) {
                 props.success?.(res.data);
                 return res.data;
@@ -77,6 +84,7 @@ class Requests {
             });
 
             console.error(`Request error: ${err} for ${props.url}`);
+            props.error?.((err as Error).message);
         } finally {
             props.finally?.();
         }

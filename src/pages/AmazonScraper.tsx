@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { Badge, Box, Button, Card, Checkbox, Flex, Group, Loader, Paper, Text, Textarea, Title } from "@mantine/core";
 import Requests from "@/functions/Requests";
+import axios from "axios";
 import { Info } from "@/types/AmazonScraper";
 import { notifications } from "@mantine/notifications";
 import { IconDownload, IconTrash } from "@tabler/icons-react";
 import { AMAZON_API_KEY, AMAZON_API_URL } from "@/global";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+// Enable relative time plugin for dayjs
+dayjs.extend(relativeTime);
 
 export default function AmazonScraper() {
     const [info, setInfo] = useState<Info | null>(null);
@@ -49,17 +55,35 @@ export default function AmazonScraper() {
 
         const linksArray = links.split("\n").filter((link) => link.trim());
 
-        // Here you would normally call your API
-        console.log("Sending links for crawling:", linksArray);
+        // Send links to the API for crawling
+        Requests.post<any>({
+            url: AMAZON_API_URL + "/start",
+            data: {
+                books: linksArray,
+            },
+            headers: {
+                "api-key": AMAZON_API_KEY,
+            },
+            before() {
+                setLoading(true);
+            },
+            success() {
+                notifications.show({
+                    title: "Links sent",
+                    message: `Sent ${linksArray.length} links for crawling`,
+                    color: "green",
+                });
 
-        notifications.show({
-            title: "Links sent",
-            message: `Sent ${linksArray.length} links for crawling`,
-            color: "green",
+                // Clear the textarea after sending
+                setLinks("");
+
+                // Refresh info to get updated crawler status
+                fetchInfo();
+            },
+            finally() {
+                setLoading(false);
+            },
         });
-
-        // Clear the textarea after sending
-        setLinks("");
     };
 
     // File selection handling
@@ -127,15 +151,60 @@ export default function AmazonScraper() {
             return;
         }
 
-        console.log("Download files:", selectedFiles);
-        console.log("Delete after download:", deleteAfter);
+        // Prepare request data
+        const requestData: Record<string, any> = {
+            files: selectedFiles,
+        };
 
-        // Here you would call your API to handle the download
+        // Add delete flag if needed
+        if (deleteAfter) {
+            requestData.delete = true;
+        }
+
         notifications.show({
             title: "Download initiated",
             message: `Downloading ${selectedFiles.length} files${deleteAfter ? " and deleting them after" : ""}`,
             color: "blue",
         });
+
+        // Send download request
+        axios
+            .post(AMAZON_API_URL + "/download", requestData, {
+                headers: {
+                    "api-key": AMAZON_API_KEY,
+                },
+                responseType: "blob", // Important for receiving binary file data
+            })
+            .then((response) => {
+                // Create a blob URL and trigger download
+                const blob = new Blob([response.data]);
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+
+                // Use content-disposition header if available, otherwise use timestamp
+                const filename = response.headers["content-disposition"]
+                    ? response.headers["content-disposition"].split("filename=")[1].replace(/"/g, "")
+                    : `unknown-${dayjs().format("YYYY-MM-DD HH:mm:ss")}`;
+
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                if (deleteAfter) {
+                    // Refresh info to reflect the deleted files
+                    fetchInfo();
+                }
+            })
+            .catch((error) => {
+                console.error("Download error:", error);
+                notifications.show({
+                    title: "Download failed",
+                    message: error.message || "Failed to download files",
+                    color: "red",
+                });
+            });
     };
 
     return (
@@ -163,7 +232,8 @@ export default function AmazonScraper() {
                         </Text>
                         {info?.crawler.started_at && (
                             <Text size="sm" mt={5}>
-                                <strong>Started at:</strong> {new Date(info.crawler.started_at).toLocaleString()}
+                                <strong>Started at:</strong> {new Date(info.crawler.started_at).toLocaleString()}(
+                                {dayjs(info.crawler.started_at).fromNow()})
                             </Text>
                         )}
                     </>
@@ -184,7 +254,9 @@ export default function AmazonScraper() {
                     maxRows={10}
                     mb={10}
                 />
-                <Button onClick={handleSendForCrawling}>Send for Crawling</Button>
+                <Button onClick={handleSendForCrawling} disabled={info?.crawler.running || loading}>
+                    Send for Crawling
+                </Button>
             </Paper>
 
             {/* Files Selection Area */}
@@ -229,17 +301,17 @@ export default function AmazonScraper() {
 
                         <Group>
                             <Button
-                                leftIcon={<IconDownload size={18} />}
+                                leftSection={<IconDownload size={18} />}
                                 onClick={() => handleDownload(false)}
                                 disabled={selectedFiles.length === 0}
                             >
                                 Download
                             </Button>
                             <Button
-                                leftIcon={<IconTrash size={18} />}
+                                leftSection={<IconTrash size={18} />}
                                 color="red"
                                 onClick={() => handleDownload(true)}
-                                disabled={selectedFiles.length === 0}
+                                disabled={selectedFiles.length === 0 || info?.crawler.running}
                             >
                                 Download and Delete
                             </Button>
@@ -252,4 +324,3 @@ export default function AmazonScraper() {
         </>
     );
 }
-
