@@ -14,7 +14,6 @@ import { useAuth } from "../context/AuthContext";
 import NavbarItem from "@/components/ui/NavbarItem";
 import { Notifications } from "@mantine/notifications";
 import { useEffect, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 import { IconChatGPT } from "@/CustomIcons/IconChatGPT";
 import { IconAmazonScraper } from "@/CustomIcons/IconAmazonScraper";
 import Requests from "@/functions/Requests";
@@ -28,7 +27,6 @@ interface Props {
 export const AppLayout = ({ children, title }: Props) => {
     const [opened, { toggle }] = useDisclosure();
     const { user, logout } = useAuth();
-    const navigate = useNavigate();
 
     useEffect(() => {
         // Check if backend token is valid
