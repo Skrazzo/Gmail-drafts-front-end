@@ -1,8 +1,11 @@
 export interface Info {
-    crawler: {
-        running: boolean;
-        job: string;
-        started_at: string;
-    };
+    crawler: Job;
+    publishers: Job;
     filesAvailable: string[];
+}
+
+export interface Job {
+    running: boolean;
+    job: string;
+    started_at: string;
 }

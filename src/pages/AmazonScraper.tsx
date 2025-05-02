@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
-import { Badge, Box, Button, Card, Checkbox, Flex, Group, Loader, Paper, Text, Textarea, Title } from "@mantine/core";
+import {
+    Box,
+    Button,
+    Checkbox,
+    Flex,
+    Group,
+    Input,
+    Loader,
+    Paper,
+    SimpleGrid,
+    Text,
+    Textarea,
+    Title,
+} from "@mantine/core";
 import Requests from "@/functions/Requests";
 import axios from "axios";
 import { Info } from "@/types/AmazonScraper";
@@ -8,6 +21,8 @@ import { IconDownload, IconTrash } from "@tabler/icons-react";
 import { AMAZON_API_KEY, AMAZON_API_URL } from "@/global";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import StatusWidget from "./AmazonScraper/StatusWidget";
+import { useForm } from "@mantine/form";
 
 // Enable relative time plugin for dayjs
 dayjs.extend(relativeTime);
@@ -38,9 +53,51 @@ export default function AmazonScraper() {
     useEffect(() => {
         fetchInfo();
         // Set up interval to refresh info every 10 seconds
-        const interval = setInterval(fetchInfo, 60 * 1000);
+        const interval = setInterval(fetchInfo, 15 * 1000);
         return () => clearInterval(interval);
     }, []);
+
+    const publishersForm = useForm({
+        initialValues: {
+            publishers: "",
+            country: "",
+        },
+        validate: {
+            publishers: (value) => (value ? null : "Please enter at least one publisher"),
+            country: (value) => (value ? null : "Please enter a country"),
+        },
+    });
+    // Handle publishers finder
+    const handlePublishers = () => {
+        // Validate form
+        if (!publishersForm.isValid()) {
+            publishersForm.validate();
+            console.log(publishersForm.errors);
+            return;
+        }
+
+        publishersForm.clearErrors();
+        const values = publishersForm.getValues();
+
+        // Submit form
+        Requests.post({
+            url: AMAZON_API_URL + "/start-publishers",
+            headers: {
+                "api-key": AMAZON_API_KEY,
+            },
+            data: {
+                country: values.country.trim(),
+                publishers: values.publishers
+                    .split("\n")
+                    .map((p) => p.trim())
+                    .filter((p) => p),
+            },
+            success() {
+                publishersForm.reset();
+                setTimeout(fetchInfo, 1000);
+            },
+        });
+    };
 
     // Handle sending links for crawling
     const handleSendForCrawling = () => {
@@ -212,34 +269,29 @@ export default function AmazonScraper() {
             <Title mb={16}>Amazon Scraper</Title>
 
             {/* Crawler Status Widget */}
-            <Card mb={20} withBorder>
-                <Group justify="apart">
-                    <Text fw={500}>Crawler Status</Text>
-                    <Badge color={info?.crawler.running ? "green" : "gray"}>
-                        {info?.crawler.running ? "Running" : "Idle"}
-                    </Badge>
-                </Group>
+            <SimpleGrid spacing={"md"} cols={2}>
+                <StatusWidget name="Crawler" info={info?.crawler || null} />
+                <StatusWidget name="Publishers finder" info={info?.publishers || null} />
+            </SimpleGrid>
 
-                {loading ? (
-                    <Flex align="center" gap={10} mt={10}>
-                        <Loader size="sm" />
-                        <Text size="sm">Loading crawler information...</Text>
-                    </Flex>
-                ) : (
-                    <>
-                        <Text size="sm" mt={10}>
-                            <strong>Current Job:</strong> {info?.crawler.job || "No active job"}
-                        </Text>
-                        {info?.crawler.started_at && (
-                            <Text size="sm" mt={5}>
-                                <strong>Started at:</strong> {new Date(info.crawler.started_at).toLocaleString()}(
-                                {dayjs(info.crawler.started_at).fromNow()})
-                            </Text>
-                        )}
-                    </>
-                )}
-            </Card>
-
+            {/* Publisher name inputs */}
+            <Paper withBorder p="md" mb={20}>
+                <Title order={3} mb={10}>
+                    Submit Publisher names
+                </Title>
+                <Input mb={8} {...publishersForm.getInputProps("country")} placeholder="Enter country" />
+                <Textarea
+                    {...publishersForm.getInputProps("publishers")}
+                    placeholder="Enter publishers (one per line)"
+                    minRows={5}
+                    autosize
+                    maxRows={20}
+                    mb={10}
+                />
+                <Button onClick={handlePublishers} disabled={info?.publishers.running || loading}>
+                    Send for querying
+                </Button>
+            </Paper>
             {/* Links Input Area */}
             <Paper withBorder p="md" mb={20}>
                 <Title order={3} mb={10}>

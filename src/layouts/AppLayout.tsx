@@ -35,7 +35,7 @@ export const AppLayout = ({ children, title }: Props) => {
         Requests.get({
             url: "/check-token",
             error(_data) {
-                window.location.href = `${API_URL}/auth/backend?warn=1`;
+                window.location.href = `${API_URL}/auth/backend`;
             },
         });
     }, []);
@@ -58,7 +58,7 @@ export const AppLayout = ({ children, title }: Props) => {
                 <Group h="100%" px="md" justify="space-between">
                     <Group>
                         <Burger opened={opened} onClick={toggle} size="sm" />
-                        <h3 className="cursor-pointer select-none" onClick={() => navigate("/login")}>
+                        <h3 className="cursor-pointer select-none" onClick={() => (window.location.href = "/")}>
                             Gmail app
                         </h3>
                     </Group>
