@@ -33,7 +33,7 @@ export const AppLayout = ({ children, title }: Props) => {
         Requests.get({
             url: "/check-token",
             error(_data) {
-                window.location.href = `${API_URL}/auth/backend`;
+                window.location.href = `${API_URL}/auth/backend?warn=1`;
             },
         });
     }, []);

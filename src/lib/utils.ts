@@ -13,3 +13,9 @@ export function getInvertedEmails(originalEmails: string[], filterEmails: string
     const lowerCaseFilter = new Set(filterEmails.map((email) => email.toLowerCase()));
     return originalEmails.filter((email) => !lowerCaseFilter.has(email.toLowerCase()));
 }
+
+export function openInNewTab(url: string | null | undefined) {
+    if (url) {
+        window.open(url, "_blank");
+    }
+}

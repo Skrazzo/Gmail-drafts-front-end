@@ -2,9 +2,8 @@ import axios from "axios";
 import { notifications } from "@mantine/notifications";
 import { AxiosResponse } from "@/types";
 
-interface PostProps<T> {
+interface RequestProps<T> {
     url: string;
-    data: Record<string, any>;
     headers?: Record<string, any>;
     before?: () => void;
     finally?: () => void;
@@ -12,14 +11,17 @@ interface PostProps<T> {
     error?: (data: string) => void;
 }
 
-interface GetProps<T> {
-    url: string;
+interface PostProps<T> extends RequestProps<T> {
+    data: Record<string, any>;
+}
+
+interface GetProps<T> extends RequestProps<T> {
     params?: Record<string, any>;
-    headers?: Record<string, any>;
-    before?: () => void;
-    finally?: () => void;
-    success?: (data: T) => void;
-    error?: (data: string) => void;
+}
+
+// New interface for DELETE requests
+interface DeleteProps<T> extends RequestProps<T> {
+    params?: Record<string, any>; // DELETE can also have parameters in the URL
 }
 
 class Requests {
@@ -64,6 +66,40 @@ class Requests {
             // Request and check for success state
             const res = (
                 await axios.post<AxiosResponse<T>>(props.url, props.data, {
+                    headers: props.headers || {},
+                })
+            ).data;
+
+            if (res.success) {
+                props.success?.(res.data);
+                return res.data;
+            } else {
+                // Report backend error
+                throw new Error(res.error);
+            }
+        } catch (err) {
+            // Report error to front end
+            notifications.show({
+                title: "Request error",
+                message: (err as Error).message,
+                color: "red",
+            });
+
+            console.error(`Request error: ${err} for ${props.url}`);
+            props.error?.((err as Error).message);
+        } finally {
+            props.finally?.();
+        }
+    }
+
+    // New delete method
+    async delete<T>(props: DeleteProps<T>): Promise<T | void> {
+        props.before?.();
+        try {
+            // Request and check for success state
+            const res = (
+                await axios.delete<AxiosResponse<T>>(props.url, {
+                    params: props.params || {}, // DELETE can have parameters
                     headers: props.headers || {},
                 })
             ).data;

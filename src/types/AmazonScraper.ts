@@ -8,4 +8,6 @@ export interface Job {
     running: boolean;
     job: string;
     started_at: string;
+    captcha: boolean;
+    captchaUrl: string | null;
 }

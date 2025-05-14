@@ -270,7 +270,15 @@ export default function AmazonScraper() {
 
             {/* Crawler Status Widget */}
             <SimpleGrid spacing={"md"} cols={2}>
-                <StatusWidget name="Crawler" info={info?.crawler || null} />
+                <StatusWidget
+                    name="Crawler"
+                    captcha={{
+                        found: info?.crawler.captcha,
+                        captchaUrl: info?.crawler.captchaUrl,
+                        deleteCaptchaUrl: "/delete-captcha",
+                    }}
+                    info={info?.crawler || null}
+                />
                 <StatusWidget name="Publishers finder" info={info?.publishers || null} />
             </SimpleGrid>
 
@@ -306,7 +314,10 @@ export default function AmazonScraper() {
                     maxRows={10}
                     mb={10}
                 />
-                <Button onClick={handleSendForCrawling} disabled={info?.crawler.running || loading}>
+                <Button
+                    onClick={handleSendForCrawling}
+                    disabled={info?.crawler.running || loading || info?.crawler.captcha}
+                >
                     Send for Crawling
                 </Button>
             </Paper>
@@ -365,7 +376,7 @@ export default function AmazonScraper() {
                                 leftSection={<IconTrash size={18} />}
                                 color="red"
                                 onClick={() => handleDownload(true)}
-                                disabled={selectedFiles.length === 0 || info?.crawler.running}
+                                disabled={selectedFiles.length === 0 || info?.crawler.running || info.crawler.captcha}
                             >
                                 Download and Delete
                             </Button>
